@@ -45,9 +45,12 @@ class ProjectService:
         return project
 
     def delete(self, project: Project) -> None:
-        """Delete a project."""
+        """Delete a project and all its associated tasks."""
+        for task in project.tasks:
+            self.session.delete(task)
         self.session.delete(project)
         self.session.commit()
+
 
     @staticmethod
     def calculate_progress(project: Project) -> float:
