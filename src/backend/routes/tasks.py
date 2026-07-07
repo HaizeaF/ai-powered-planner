@@ -1,0 +1,70 @@
+"""Task endpoints."""
+from datetime import date
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session
+from src.backend.db.database import get_session
+from src.backend.models.project import ProjectRead
+from src.backend.models.task import Task, TaskCreate, TaskRead, TaskUpdate
+from src.backend.services.project_service import ProjectService
+from src.backend.services.task_service import TaskService
+
+router = APIRouter(prefix="/tasks", tags=["tasks"])
+
+def _to_read(task: Task) -> TaskRead:
+    """Build a TaskRead, converting the nested project (if any) to ProjectRead."""
+    project_read = None
+    if task.project is not None:
+        progress = ProjectService.calculate_progress(task.project)
+        project_read = ProjectRead(**task.project.model_dump(), progress=progress)
+    return TaskRead(**task.model_dump(), project=project_read)
+
+@router.post("", response_model=TaskRead)
+def create_task(task_create: TaskCreate, session: Session = Depends(get_session)) -> TaskRead:
+    """Create a new task."""
+    service = TaskService(session)
+    task = service.create(task_create)
+    return _to_read(task)
+
+@router.get("", response_model=list[TaskRead])
+def list_tasks(task_date: date | None = Query(default=None), session: Session = Depends(get_session)) -> list[TaskRead]:
+    """List tasks, optionally filtered by day."""
+    service = TaskService(session)
+    if task_date is not None:
+        return [_to_read(t) for t in service.get_by_day(task_date)]
+    return [_to_read(t) for t in service.get_all()]
+
+@router.get("/{task_id}", response_model=TaskRead)
+def get_task(task_id: int, session: Session = Depends(get_session)) -> TaskRead:
+    """Retrieve a single task by id."""
+    service = TaskService(session)
+    task = service.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return _to_read(task)
+
+@router.patch("/{task_id}", response_model=TaskRead)
+def update_task(task_id: int, task_update: TaskUpdate, session: Session = Depends(get_session)) -> TaskRead:
+    """Update an existing task."""
+    service = TaskService(session)
+    task = service.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return _to_read(service.update(task, task_update))
+
+@router.post("/{task_id}/complete", response_model=TaskRead)
+def complete_task(task_id: int, session: Session = Depends(get_session)) -> TaskRead:
+    """Mark a task as completed."""
+    service = TaskService(session)
+    task = service.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return _to_read(service.update(task, TaskUpdate(completed=True)))
+
+@router.delete("/{task_id}", status_code=204)
+def delete_task(task_id: int, session: Session = Depends(get_session)) -> None:
+    """Delete a task."""
+    service = TaskService(session)
+    task = service.get(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    service.delete(task)
