@@ -1,30 +1,23 @@
 """Chat endpoint that runs a conversational turn through the graph."""
 from langchain_core.messages import HumanMessage, AIMessage
+from fastapi import APIRouter, Request
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.backend.db.database import engine
 from src.backend.schemas.message import MessageRequest, MessageResponse
-from fastapi import APIRouter
-from src.backend.services.graph_service import build_graph
+from src.backend.schemas.context import Context
 
 router = APIRouter()
-graph = build_graph()
-
-def _parse_history(history: list[dict]) -> list:
-    """Convert plain dict history entries into LangChain message objects."""
-    messages = []
-    for msg in history:
-        if msg["role"] == "user":
-            messages.append(HumanMessage(content=msg["content"]))
-        else:
-            messages.append(AIMessage(content=msg["content"]))
-    
-    return messages
 
 @router.post("/chat", response_model=MessageResponse)
-async def chat(request: MessageRequest) -> MessageResponse:
+async def chat(request: Request, body: MessageRequest) -> MessageResponse:
     """Run a single conversational turn through the chatbot graph."""
-    result = await graph.ainvoke({
-        "question": request.question,
-        "history": _parse_history(request.history),
-        "generation": "",
-    })
 
-    return MessageResponse(agent_response=result["generation"])
+    agent = request.app.state.answer_agent
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        result = await agent.ainvoke(
+            {"messages": [HumanMessage(content=body.question)]},
+            context=Context(session=session),
+            config={"configurable": {"thread_id": body.thread_id}}
+        )
+
+    return MessageResponse(agent_response=result["messages"][-1].content)

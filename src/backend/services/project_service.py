@@ -1,37 +1,49 @@
 """Service responsible for project-related business logic."""
 
-from sqlmodel import Session, select
-from src.backend.models.project import (Project, ProjectCreate, ProjectUpdate)
+from sqlmodel import select
+from sqlalchemy import Sequence
+from sqlalchemy.ext.asyncio.session import AsyncSession
+from sqlalchemy.orm import selectinload
+from src.backend.models.project import Project, ProjectCreate, ProjectUpdate
 from src.backend.schemas.enums import TaskType
 
 class ProjectService:
     """Service responsible for project-related business logic."""
 
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         """Initialize the service with a database session."""
         self.session = session
 
-    def create(self, project_create: ProjectCreate) -> Project:
+    async def create(self, project_create: ProjectCreate) -> Project:
         """Create a new project."""
         project = Project.model_validate(project_create)
 
         self.session.add(project)
-        self.session.commit()
-        self.session.refresh(project)
+        await self.session.commit()
+        await self.session.refresh(project, attribute_names=["tasks"])
 
         return project
 
-    def get(self, project_id: int) -> Project | None:
+    async def get(self, project_id: int) -> Project | None:
         """Retrieve a project by its identifier."""
-        return self.session.get(Project, project_id)
+        statement = (
+            select(Project)
+            .where(Project.id == project_id)
+            .options(selectinload(Project.tasks)) # type: ignore[arg-type]
+            .execution_options(populate_existing=True)
+        )
+        result = await self.session.scalars(statement)
 
-    def get_all(self) -> list[Project]:
+        return result.first()
+
+    async def get_all(self) -> list[Project]:
         """Retrieve all projects."""
         statement = select(Project)
+        result = await self.session.scalars(statement)
 
-        return list(self.session.exec(statement).all())
+        return list(result)
 
-    def update(self, project: Project, project_update: ProjectUpdate) -> Project:
+    async def update(self, project: Project, project_update: ProjectUpdate) -> Project:
         """Update an existing project."""
         values = project_update.model_dump(exclude_unset=True)
 
@@ -39,17 +51,20 @@ class ProjectService:
             setattr(project, key, value)
 
         self.session.add(project)
-        self.session.commit()
-        self.session.refresh(project)
+        await self.session.commit()
+        await self.session.refresh(project, attribute_names=["task"])
 
         return project
 
-    def delete(self, project: Project) -> None:
+    async def delete(self, project: Project) -> None:
         """Delete a project and all its associated tasks."""
+        await self.session.refresh(project, attribute_names=["tasks"])
+
         for task in project.tasks:
-            self.session.delete(task)
-        self.session.delete(project)
-        self.session.commit()
+            await self.session.delete(task) # TODO: Alembic no incluye delete en cascada? 
+
+        await self.session.delete(project)
+        await self.session.commit()
 
 
     @staticmethod
