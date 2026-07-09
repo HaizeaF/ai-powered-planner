@@ -1,17 +1,21 @@
 """SQLite database configuration and session management."""
 
-from typing import Generator
-from sqlmodel import Session, SQLModel, create_engine
+from typing import AsyncGenerator
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.backend.config.config import Config
-from src.backend.models import task, project
 
-engine = create_engine(Config.DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
+engine = create_async_engine(Config.DATABASE_URL, echo=True)
 
-def init_db() -> None:
-    """Create the tables if they do not exist."""
-    SQLModel.metadata.create_all(engine)
-
-def get_session() -> Generator[Session, None, None]:
-    """FastAPI dependency that yields a database session."""
-    with Session(engine) as session:
-        yield session
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    """FastAPI dependency that yields an async database session.
+    
+    This is the transaction boundary: everything done with this session during the request is committed together at the end. If anything raises, the whole transaction is rolled back, nothing partially done gets persisted.
+    """
+    async with AsyncSession(engine, expire_on_commit=False) as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise
