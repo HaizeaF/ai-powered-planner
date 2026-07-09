@@ -16,15 +16,16 @@ class TaskService:
         task = Task.model_validate(task_create)
 
         self.session.add(task)
-        await self.session.commit()
+        await self.session.flush() 
         await self.session.refresh(task, attribute_names=["project"])
-
+        
         return task
 
     async def get(self, task_id: int) -> Task | None:
         """Retrieve a task by its identifier."""
         statement = (
             select(Task)
+            .where(Task.id == task_id)
             .options(selectinload(Task.project)) # type: ignore[arg-type]
             .execution_options(populate_existing=True)
         )
@@ -67,7 +68,7 @@ class TaskService:
             setattr(task, key, value)
 
         self.session.add(task)
-        await self.session.commit()
+        await self.session.flush() 
         await self.session.refresh(task, attribute_names=["project"])
 
         return task
@@ -75,4 +76,3 @@ class TaskService:
     async def delete(self, task: Task) -> None:
         """Delete a task."""
         await self.session.delete(task)
-        await self.session.commit()

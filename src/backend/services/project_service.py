@@ -1,7 +1,6 @@
 """Service responsible for project-related business logic."""
 
 from sqlmodel import select
-from sqlalchemy import Sequence
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 from src.backend.models.project import Project, ProjectCreate, ProjectUpdate
@@ -19,7 +18,7 @@ class ProjectService:
         project = Project.model_validate(project_create)
 
         self.session.add(project)
-        await self.session.commit()
+        await self.session.flush() 
         await self.session.refresh(project, attribute_names=["tasks"])
 
         return project
@@ -38,7 +37,11 @@ class ProjectService:
 
     async def get_all(self) -> list[Project]:
         """Retrieve all projects."""
-        statement = select(Project)
+        statement = (
+            select(Project)
+            .options(selectinload(Project.tasks)) # type: ignore[arg-type]
+            .execution_options(populate_existing=True)
+        )
         result = await self.session.scalars(statement)
 
         return list(result)
@@ -51,8 +54,8 @@ class ProjectService:
             setattr(project, key, value)
 
         self.session.add(project)
-        await self.session.commit()
-        await self.session.refresh(project, attribute_names=["task"])
+        await self.session.flush() 
+        await self.session.refresh(project, attribute_names=["tasks"])
 
         return project
 
@@ -64,8 +67,6 @@ class ProjectService:
             await self.session.delete(task) # TODO: Alembic no incluye delete en cascada? 
 
         await self.session.delete(project)
-        await self.session.commit()
-
 
     @staticmethod
     def calculate_progress(project: Project) -> float:

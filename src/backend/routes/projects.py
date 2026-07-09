@@ -17,7 +17,7 @@ def _to_read(service: ProjectService, project) -> ProjectRead:
 async def create_project(project_create: ProjectCreate, session: AsyncSession = Depends(get_session)) -> ProjectRead:
     """Create a new project."""
     service = ProjectService(session)
-    project = service.create(project_create)
+    project = await service.create(project_create)
 
     return _to_read(service, project)
 
@@ -32,7 +32,7 @@ async def list_projects(session: AsyncSession = Depends(get_session)) -> list[Pr
 async def get_project(project_id: int, session: AsyncSession = Depends(get_session)) -> ProjectRead:
     """Retrieve a single project by id."""
     service = ProjectService(session)
-    project = service.get(project_id)
+    project = await service.get(project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     
@@ -45,7 +45,7 @@ async def update_project(project_id: int, project_update: ProjectUpdate, session
     project = await service.get(project_id)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
-    project = service.update(project, project_update)
+    project = await service.update(project, project_update)
 
     return _to_read(service, project)
 

@@ -3,7 +3,7 @@
 from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langgraph.checkpoint.base import BaseCheckpointSaver
-from src.backend.prompts.prompts import ANSWER_PROMPT
+from src.backend.chatbot.prompts_builder import answer_builder
 from src.backend.config.config import Config
 from src.backend.tools.project_tools import PROJECT_TOOLS
 from src.backend.tools.task_tools import TASK_TOOLS
@@ -17,6 +17,6 @@ def create_answer_agent(checkpointer: BaseCheckpointSaver):
         model=_llm,
         tools=[*PROJECT_TOOLS, *TASK_TOOLS],
         context_schema=Context,
-        system_prompt=ANSWER_PROMPT,
+        system_prompt=answer_builder(),
         checkpointer=checkpointer,
     )

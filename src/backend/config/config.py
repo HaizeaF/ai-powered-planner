@@ -15,4 +15,7 @@ class Config:
     CHECKPOINT_DB_PATH: str = str(BASE_DIR / "db" / "checkpoints.db")
 
     # LLM
-    LLM_MODEL: str = "llama3"
+    LLM_MODEL: str = "qwen3:8b"
+
+    # CORS
+    CORS_ORIGINS: str = ""
