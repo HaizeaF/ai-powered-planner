@@ -1,0 +1,161 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+    --color-bg-from: #f7f5ff;
+    --color-bg-to: #eef2ff;
+    --color-primary: #7c3aed;
+    --color-primary-dark: #6d28d9;
+    --color-primary-light: #8b5cf6;
+    --color-accent-purple-50: #faf7ff;
+    --color-border: #e7defd;
+    --color-border-light: #ddd6fe;
+    --color-text: #2d1b69;
+    --color-text-muted: #6b7280;
+    --color-danger-bg: #fdecec;
+    --color-danger-text: #b42318;
+    --shadow-soft: 0 8px 20px rgba(124, 58, 237, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+    --shadow-strong: 0 10px 20px rgba(124, 58, 237, 0.25);
+    --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 55%, #6d28d9 100%);
+    --gradient-bg: linear-gradient(135deg, #f7f5ff 0%, #eef2ff 100%);
+    --gradient-panel: linear-gradient(135deg, #ffffff 0%, #faf7ff 100%);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 8px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--gradient-bg);
+    color: #2f3542;
+}
+
+h1, h2, h3, h4 {
+    color: var(--color-text);
+    margin: 0;
+}
+
+button {
+    font-family: inherit;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c4b5fd;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--color-primary);
+    margin-bottom: 14px;
+}
+
+.icon-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background: none;
+    padding: 4px;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.icon-button:hover:not(:disabled) {
+    color: var(--color-primary-dark);
+}
+
+.icon-button:disabled {
+    color: var(--color-border-light);
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    color: white;
+    cursor: pointer;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-strong);
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(124, 58, 237, 0.3);
+}
+
+.btn-secondary {
+    border: 1px solid var(--color-border-light);
+    border-radius: 999px;
+    padding: 10px 20px;
+    background: white;
+    color: var(--color-text);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-danger {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+input, textarea, select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    font-size: 14px;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: #222;
+    outline: none;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--color-primary-light);
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+}
+
+.panel-card {
+    background: var(--gradient-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    padding: 24px;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}

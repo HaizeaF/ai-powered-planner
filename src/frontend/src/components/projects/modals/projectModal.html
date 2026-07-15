@@ -1,0 +1,87 @@
+<div class="modal-backdrop" *ngIf="state" (click)="onBackdropClick()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{isEdit ? editingDetails() ? "Edit project" : state && state.mode === "edit" ? state.project.name : "" : "New project"}}</h3>
+            <button class="icon-button close-btn" (click)="close.emit()" aria-label="Close">
+                <svg lucideX [size]="20"></svg>
+            </button>
+        </div>
+
+        <ng-container *ngIf="isEdit && !editingDetails() && state && state.mode === 'edit'">
+            <div class="progress-row">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" [style.width.%]="state.project.progress * 100"></div>
+                </div>
+                <span class="progress-count">{{ completedCount() }}/{{ totalCount() }}</span>
+            </div>
+
+            <div class="description-scroll">
+                <p>{{ state.project.description || "No description." }}</p>
+            </div>
+
+            <h4 class="tasks-heading">Tasks</h4>
+            <div class="task-list">
+                <div class="task-row" *ngFor="let task of projectTasks()">
+                    <div class="task-info">
+                        <span class="task-title" [class.completed]="task.completed">{{ task.title }}</span>
+                        <span class="task-meta">
+                            {{ formatDate(task.start_datetime) }}
+                            <ng-container *ngIf="task.start_datetime.slice(11, 16) !== '00:00'">· {{ formatTime(task) }}</ng-container>
+                        </span>
+                    </div>
+                    <button class="task-check" [class.checked]="task.completed" (click)="toggleTaskComplete(task)" aria-label="Mark as complete">
+                        <svg *ngIf="task.completed" lucideCheck [size]="14"></svg>
+                    </button>
+                </div>
+                <p class="empty-state" *ngIf="projectTasks().length === 0">
+                    This project has no tasks yet.
+                </p>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-danger" (click)="onDelete()" [disabled]="saving()">
+                    Delete project
+                </button>
+                <div class="spacer"></div>
+                <button type="button" class="btn-secondary" (click)="editingDetails.set(true)">Edit</button>
+            </div>
+        </ng-container>
+
+        <form *ngIf="!isEdit || editingDetails()" (ngSubmit)="onSubmit()">
+            <label class="field">
+                <span>Name</span>
+                <input type="text" [(ngModel)]="name" name="name" required maxlength="120" placeholder="E.g. Website redesign"/>
+            </label>
+
+            <label class="field">
+                <span>Description</span>
+                <textarea [(ngModel)]="description" name="description" rows="4" placeholder="Optional"></textarea>
+            </label>
+
+            <div class="field-row">
+                <label class="field">
+                    <span>Due date</span>
+                    <input type="date" [(ngModel)]="endDate" name="endDate" />
+                </label>
+            </div>
+
+            <div class="field">
+                <span>Color</span>
+                <div class="color-picker">
+                    <button type="button" *ngFor="let c of colors" class="color-swatch" [class.selected]="c === color" [style.background]="c" (click)="color = c"></button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-danger" *ngIf="isEdit" (click)="onDelete()" [disabled]="saving()">
+                    Delete
+                </button>
+                <div class="spacer"></div>
+                <button type="button" class="btn-secondary" (click)="isEdit ? editingDetails.set(false) : close.emit()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn-primary" [disabled]="saving()">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

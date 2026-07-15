@@ -1,0 +1,104 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.projects-grid {
+    flex: 1;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-auto-columns: minmax(190px, 1fr);
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+}
+
+.project-card {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--gradient-panel);
+    cursor: pointer;
+    text-align: left;
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+    padding: 0;
+}
+
+.project-card:hover {
+    box-shadow: var(--shadow-soft);
+    transform: translateY(-2px);
+}
+
+.project-color-bar {
+    width: 6px;
+    flex-shrink: 0;
+}
+
+.project-card-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+
+.project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.project-name {
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.project-count {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.project-description {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.progress-bar {
+    margin-top: auto;
+    height: 6px;
+    border-radius: 999px;
+    background: #e5e0f7;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+}
+
+.add-project-card {
+    align-items: center;
+    justify-content: center;
+    background: #f3effe;
+    border: 2px dashed var(--color-border-light);
+}
+
+.add-icon {
+    color: var(--color-primary);
+}

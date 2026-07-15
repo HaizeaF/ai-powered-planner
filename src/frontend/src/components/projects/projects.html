@@ -1,0 +1,23 @@
+<div class="panel-card">
+    <h2 class="section-title">Projects</h2>
+
+    <div class="projects-grid">
+        <div class="project-card" *ngFor="let project of projects()" (click)="openProject.emit(project)">
+            <span class="project-color-bar" [style.background]="project.color"></span>
+            <div class="project-card-body">
+                <div class="project-card-header">
+                    <span class="project-name">{{ project.name }}</span>
+                    <span class="project-count">{{ project.completedCount }}/{{ project.totalCount }}</span>
+                </div>
+                <p class="project-description">{{ project.description }}</p>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" [style.width.%]="project.progress * 100"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="project-card add-project-card" (click)="addProject.emit()">
+            <svg lucidePlus class="add-icon" [size]="32"></svg>
+        </button>
+    </div>
+</div>

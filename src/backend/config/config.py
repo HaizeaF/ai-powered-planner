@@ -1,9 +1,10 @@
 """Centralized configuration for the backend."""
-
+import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv()
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(ENV_PATH)
 
 class Config:
     # Paths
@@ -18,4 +19,4 @@ class Config:
     LLM_MODEL: str = "qwen3:8b"
 
     # CORS
-    CORS_ORIGINS: str = ""
+    CORS_ORIGINS: list[str] = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",")]

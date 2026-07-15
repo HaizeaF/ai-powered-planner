@@ -1,0 +1,34 @@
+<button class="chat-fab" (click)="toggle()" *ngIf="!open()" aria-label="Open assistant">
+    <svg lucideMessageCircle [size]="26"></svg>
+</button>
+
+<div class="chat-panel" *ngIf="open()">
+    <div class="chat-panel-header">
+        <div class="header-title">
+            <h3>Assistant</h3>
+            <button class="clear-button" (click)="clearChat()" [disabled]="messages().length === 0" aria-label="Clear chat">
+                <svg lucideRotateCcw [size]="16"></svg>
+            </button>
+        </div>
+        <button class="icon-button" (click)="toggle()" aria-label="Close assistant">
+            <svg lucideX [size]="20"></svg>
+        </button>
+    </div>
+
+    <div class="chat-window" #chatWindow>
+        <p class="chat-empty" *ngIf="messages().length === 0">
+            Ask me to create, update, or delete tasks and projects for you.
+        </p>
+        <div class="message" *ngFor="let message of messages()" [ngClass]="message.role">
+            {{ message.content }}
+        </div>
+        <div class="message agent typing" *ngIf="sending()">Typing…</div>
+    </div>
+
+    <form class="chat-form" (ngSubmit)="send()">
+        <input type="text" [(ngModel)]="question" name="question" placeholder="Type an instruction…" [disabled]="sending()"/>
+        <button type="submit" [disabled]="sending() || !question.trim()" aria-label="Send">
+            <svg lucideArrowUp [size]="16"></svg>
+        </button>
+    </form>
+</div>

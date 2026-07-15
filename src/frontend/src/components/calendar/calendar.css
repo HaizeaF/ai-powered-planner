@@ -1,0 +1,160 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.panel-card {
+    gap: 0;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.section-title {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.month-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.month-nav .icon-button {
+    font-size: 19px;
+}
+
+.month-label {
+    min-width: 130px;
+    text-align: center;
+}
+
+.weekday-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-top: 18px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.weekday {
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 14px;
+}
+
+.weeks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.week-row {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid #f0edff;
+}
+
+.day-cell {
+    position: relative;
+    padding: 6px;
+    cursor: pointer;
+    border-right: 1px solid #f0edff;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 0;
+    overflow: hidden;
+    transition: background 0.15s ease;
+}
+
+.day-cell:hover {
+    background: #faf7ff;
+}
+
+.day-cell:hover .add-task-btn {
+    opacity: 1;
+}
+
+.day-cell.outside-month {
+    color: #c9c4dd;
+}
+
+.day-cell.selected {
+    background: #f1ebff;
+}
+
+.day-cell.today .day-number {
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+}
+
+.day-cell-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.day-number {
+    font-size: 13px;
+    font-weight: 600;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-task-btn {
+    opacity: 0;
+    border: none;
+    background: var(--color-primary-light);
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.featured-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.featured-task {
+    font-size: 11px;
+    color: white;
+    padding: 1px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.total-count {
+    position: absolute;
+    bottom: 4px;
+    right: 6px;
+    font-size: 11px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}

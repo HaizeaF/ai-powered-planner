@@ -1,5 +1,5 @@
 """Task model."""
-from datetime import date, datetime, time, timezone
+from datetime import datetime, timezone
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 from src.backend.schemas.enums import TaskType, ColorType, RecurrenceType
