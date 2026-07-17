@@ -230,6 +230,7 @@ __marimo__/
 
 # Database
 *.db
+*.db-*
 versions/
 
 # Compiled output

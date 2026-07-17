@@ -15,7 +15,7 @@
         <ng-container *ngIf="isEdit && !editingDetails() && editingProject as p">
             <div class="progress-row">
                 <div class="progress-bar">
-                    <div class="progress-bar-fill" [style.width.%]="p.progress * 100"></div>
+                    <div class="progress-bar-fill" [style.width.%]="totalCount() === 0 ? 0 : (completedCount() / totalCount()) * 100"></div>
                 </div>
                 <span class="progress-count">{{ completedCount() }}/{{ totalCount() }}</span>
             </div>

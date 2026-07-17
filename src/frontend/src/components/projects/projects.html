@@ -18,7 +18,7 @@
                 </div>
                 <p class="project-description">{{ project.description }}</p>
                 <div class="progress-bar">
-                    <div class="progress-bar-fill" [style.width.%]="project.progress * 100"></div>
+                    <div class="progress-bar-fill" [style.width.%]="project.totalCount === 0 ? 0 : (project.completedCount / project.totalCount) * 100"></div>
                 </div>
             </div>
         </div>

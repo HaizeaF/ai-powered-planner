@@ -67,19 +67,3 @@ class ProjectService:
             await self.session.delete(task) # TODO: Alembic no incluye delete en cascada? 
 
         await self.session.delete(project)
-
-    @staticmethod
-    def calculate_progress(project: Project) -> float:
-        """Calculate the completion percentage of a project.
-
-        Only tasks of type 'task' are considered. Events are ignored because
-        they cannot be completed.
-        """
-        tasks = [task for task in project.tasks if task.type == TaskType.TASK]
-
-        if not tasks:
-            return 0.0
-
-        completed = sum(task.completed for task in tasks)
-
-        return completed / len(tasks)

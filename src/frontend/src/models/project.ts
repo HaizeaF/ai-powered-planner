@@ -19,7 +19,6 @@ export interface ProjectUpdate {
 export interface Project extends ProjectBase {
     id: number;
     created_at: string;
-    progress: number;
 }
 
 export interface ProjectStats extends Project {

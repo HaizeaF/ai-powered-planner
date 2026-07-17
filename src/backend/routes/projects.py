@@ -7,26 +7,20 @@ from src.backend.services.project_service import ProjectService
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
-def _to_read(service: ProjectService, project) -> ProjectRead:
-    """Build a ProjectRead including the computed progress."""
-    progress = service.calculate_progress(project)
-
-    return ProjectRead(**project.model_dump(), progress=progress)
-
 @router.post("", response_model=ProjectRead)
 async def create_project(project_create: ProjectCreate, session: AsyncSession = Depends(get_session)) -> ProjectRead:
     """Create a new project."""
     service = ProjectService(session)
     project = await service.create(project_create)
 
-    return _to_read(service, project)
+    return ProjectRead(**project.model_dump())
 
 @router.get("", response_model=list[ProjectRead])
 async def list_projects(session: AsyncSession = Depends(get_session)) -> list[ProjectRead]:
     """List all projects."""
     service = ProjectService(session)
 
-    return [_to_read(service, project) for project in await service.get_all()]
+    return [ProjectRead(**project.model_dump()) for project in await service.get_all()]
 
 @router.get("/{project_id}", response_model=ProjectRead)
 async def get_project(project_id: int, session: AsyncSession = Depends(get_session)) -> ProjectRead:
@@ -36,7 +30,7 @@ async def get_project(project_id: int, session: AsyncSession = Depends(get_sessi
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     
-    return _to_read(service, project)
+    return ProjectRead(**project.model_dump())
 
 @router.patch("/{project_id}", response_model=ProjectRead)
 async def update_project(project_id: int, project_update: ProjectUpdate, session: AsyncSession = Depends(get_session)) -> ProjectRead:
@@ -47,7 +41,7 @@ async def update_project(project_id: int, project_update: ProjectUpdate, session
         raise HTTPException(status_code=404, detail="Project not found")
     project = await service.update(project, project_update)
 
-    return _to_read(service, project)
+    return ProjectRead(**project.model_dump())
 
 @router.delete("/{project_id}", status_code=204)
 async def delete_project(project_id: int, session: AsyncSession = Depends(get_session)) -> None:

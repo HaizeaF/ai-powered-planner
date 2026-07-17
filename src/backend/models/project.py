@@ -36,6 +36,5 @@ class ProjectRead(ProjectBase):
     """Payload for reading a project, includes the computed progress."""
     id: int
     created_at: datetime
-    progress: float
 
 TaskRead.model_rebuild(_types_namespace={"ProjectRead": ProjectRead})
