@@ -1,22 +1,27 @@
-<div class="modal-backdrop" *ngIf="state" (click)="onBackdropClick()">
+<div class="modal-backdrop" *ngIf="state()" (click)="onBackdropClick()">
     <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h3>{{isEdit ? editingDetails() ? "Edit project" : state && state.mode === "edit" ? state.project.name : "" : "New project"}}</h3>
-            <button class="icon-button close-btn" (click)="close.emit()" aria-label="Close">
-                <svg lucideX [size]="20"></svg>
-            </button>
+            <h3>{{ isEdit ? (editingDetails() ? "Edit project" : (editingProject?.name ?? "")) : "New project" }}</h3>
+            <div class="header-actions">
+                <button type="button" class="icon-button delete-btn" *ngIf="isEdit && !editingDetails()" (click)="onDelete()" [disabled]="saving()" aria-label="Delete project">
+                    <svg lucideTrash2 [size]="18"></svg>
+                </button>
+                <button class="icon-button close-btn" (click)="close.emit()" aria-label="Close">
+                    <svg lucideX [size]="20"></svg>
+                </button>
+            </div>
         </div>
 
-        <ng-container *ngIf="isEdit && !editingDetails() && state && state.mode === 'edit'">
+        <ng-container *ngIf="isEdit && !editingDetails() && editingProject as p">
             <div class="progress-row">
                 <div class="progress-bar">
-                    <div class="progress-bar-fill" [style.width.%]="state.project.progress * 100"></div>
+                    <div class="progress-bar-fill" [style.width.%]="p.progress * 100"></div>
                 </div>
                 <span class="progress-count">{{ completedCount() }}/{{ totalCount() }}</span>
             </div>
 
             <div class="description-scroll">
-                <p>{{ state.project.description || "No description." }}</p>
+                <p>{{ p.description || "No description." }}</p>
             </div>
 
             <h4 class="tasks-heading">Tasks</h4>
@@ -30,7 +35,7 @@
                         </span>
                     </div>
                     <button class="task-check" [class.checked]="task.completed" (click)="toggleTaskComplete(task)" aria-label="Mark as complete">
-                        <svg *ngIf="task.completed" lucideCheck [size]="14"></svg>
+                        <svg *ngIf="task.completed" lucideCheck [size]="15"></svg>
                     </button>
                 </div>
                 <p class="empty-state" *ngIf="projectTasks().length === 0">
@@ -39,9 +44,6 @@
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn-danger" (click)="onDelete()" [disabled]="saving()">
-                    Delete project
-                </button>
                 <div class="spacer"></div>
                 <button type="button" class="btn-secondary" (click)="editingDetails.set(true)">Edit</button>
             </div>
@@ -73,9 +75,6 @@
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="btn-danger" *ngIf="isEdit" (click)="onDelete()" [disabled]="saving()">
-                    Delete
-                </button>
                 <div class="spacer"></div>
                 <button type="button" class="btn-secondary" (click)="isEdit ? editingDetails.set(false) : close.emit()">
                     Cancel

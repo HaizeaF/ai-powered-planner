@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output, computed, effect, inject, signal } from "@angular/core";
+import { Component, EventEmitter, Output, computed, effect, inject, input, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { LucideCheck, LucideX } from "@lucide/angular";
+import { LucideCheck, LucideTrash2, LucideX } from "@lucide/angular";
 import { ProjectService } from "../../../services/project";
 import { TaskService } from "../../../services/task";
 import { COLOR_PALETTE, DEFAULT_COLOR } from "../../../models/enums";
@@ -13,7 +13,7 @@ export type ProjectModalState = { mode: "create" } | { mode: "edit"; project: Pr
 
 @Component({
     selector: "app-project-modal",
-    imports: [CommonModule, FormsModule, LucideCheck, LucideX],
+    imports: [CommonModule, FormsModule, LucideCheck, LucideTrash2, LucideX],
     templateUrl: "./projectModal.html",
     styleUrl: "./projectModal.css"
 })
@@ -21,7 +21,7 @@ export class ProjectModal {
     private readonly projectService = inject(ProjectService);
     private readonly taskService = inject(TaskService);
 
-    @Input() state: ProjectModalState | null = null;
+    readonly state = input<ProjectModalState | null>(null);
     @Output() close = new EventEmitter<void>();
 
     readonly colors = COLOR_PALETTE;
@@ -34,8 +34,9 @@ export class ProjectModal {
     color = DEFAULT_COLOR;
 
     readonly projectTasks = computed<Task[]>(() => {
-        if (this.state?.mode !== "edit") return [];
-        const projectId = this.state.project.id;
+        const s = this.state();
+        if (s?.mode !== "edit") return [];
+        const projectId = s.project.id;
         return this.taskService
         .tasks()
         .filter((t) => t.project_id === projectId)
@@ -47,7 +48,7 @@ export class ProjectModal {
 
     constructor() {
         effect(() => {
-        const s = this.state;
+        const s = this.state();
         if (!s) return;
         this.editingDetails.set(s.mode === "create");
 
@@ -66,7 +67,12 @@ export class ProjectModal {
     }
 
     get isEdit(): boolean {
-        return this.state?.mode === "edit";
+        return this.state()?.mode === "edit";
+    }
+
+    get editingProject(): Project | null {
+        const s = this.state();
+        return s?.mode === "edit" ? s.project : null;
     }
 
     formatDate(iso: string): string {
@@ -91,8 +97,9 @@ export class ProjectModal {
         };
 
         try {
-            if (this.state?.mode === "edit") {
-                await this.projectService.update(this.state.project.id, payload);
+            const s = this.state();
+            if (s?.mode === "edit") {
+                await this.projectService.update(s.project.id, payload);
                 this.editingDetails.set(false);
             } else {
                 await this.projectService.create(payload as ProjectCreate);
@@ -104,10 +111,11 @@ export class ProjectModal {
     }
 
     async onDelete(): Promise<void> {
-        if (this.state?.mode !== "edit") return;
+        const s = this.state();
+        if (s?.mode !== "edit") return;
             this.saving.set(true);
         try {
-            await this.projectService.delete(this.state.project.id);
+            await this.projectService.delete(s.project.id);
             this.close.emit();
         } finally {
             this.saving.set(false);

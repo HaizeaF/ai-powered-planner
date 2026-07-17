@@ -62,15 +62,14 @@ export class Calendar {
             const iso = toIsoDate(date);
             const dayTasks = tasksByDay.get(iso) ?? [];
             const featured = dayTasks.filter((t) => t.is_featured).slice(0, 3);
-            const featuredFallback = featured.length > 0 ? featured : dayTasks.slice(0, 3);
 
             cells.push({
                 date: iso,
                 dayNumber: date.getDate(),
                 inCurrentMonth: date.getMonth() === view.getMonth(),
                 isToday: iso === this.today,
-                featuredTasks: featuredFallback,
-                overflowCount: Math.max(dayTasks.length - featuredFallback.length, 0),
+                featuredTasks: featured,
+                overflowCount: Math.max(dayTasks.length - featured.length, 0),
                 totalCount: dayTasks.length,
             });
         }

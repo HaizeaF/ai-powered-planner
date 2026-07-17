@@ -1,5 +1,12 @@
 <div class="panel-card">
-    <h2 class="section-title">Projects</h2>
+    <div class="projects-header">
+        <div class="title-wrap">
+            <h2 class="section-title">Projects</h2>
+        </div>
+        <button class="icon-button add-project-btn" (click)="addProject.emit()" aria-label="Add project">
+            <svg lucidePlus [size]="18"></svg>
+        </button>
+    </div>
 
     <div class="projects-grid">
         <div class="project-card" *ngFor="let project of projects()" (click)="openProject.emit(project)">
@@ -16,8 +23,6 @@
             </div>
         </div>
 
-        <button class="project-card add-project-card" (click)="addProject.emit()">
-            <svg lucidePlus class="add-icon" [size]="32"></svg>
-        </button>
+        <p class="empty-state" *ngIf="projects().length === 0">No projects yet.</p>
     </div>
 </div>

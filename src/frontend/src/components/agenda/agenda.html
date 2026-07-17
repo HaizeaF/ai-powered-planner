@@ -21,7 +21,7 @@
             <span class="task-time" *ngIf="hasTime(task)">{{ formatTime(task) }}</span>
 
             <button *ngIf="isCompletable(task)" class="task-check" [class.checked]="task.completed" (click)="toggleComplete($event, task)" aria-label="Mark as complete">
-                <svg *ngIf="task.completed" lucideCheck [size]="14"></svg>
+                <svg *ngIf="task.completed" lucideCheck [size]="17"></svg>
             </button>
         </div>
 

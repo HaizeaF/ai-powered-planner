@@ -123,14 +123,19 @@
     border: none;
     background: var(--color-primary-light);
     color: white;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    border-radius: 99px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: opacity 0.15s ease;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.add-task-btn:hover {
+    background: var(--color-primary-dark);
 }
 
 .featured-tasks {

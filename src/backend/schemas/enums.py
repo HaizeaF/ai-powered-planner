@@ -13,10 +13,3 @@ class ColorType(str, Enum):
     GREEN = "#10b981",
     BLUE = "#3b82f6",
     PINK = "#ec4899"
-
-class RecurrenceType(str, Enum):
-    """Recurrence type: determines tasks recurrence."""
-    NONE = "none"
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    MONTHLY = "monthly"

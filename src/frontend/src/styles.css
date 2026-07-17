@@ -15,6 +15,8 @@
     --shadow-soft: 0 8px 20px rgba(124, 58, 237, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
     --shadow-strong: 0 10px 20px rgba(124, 58, 237, 0.25);
     --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 55%, #6d28d9 100%);
+    --gradient-secondary: linear-gradient(135deg, #60a5fa 0%, #3b82f6 55%, #2563eb 100%);
+    --shadow-secondary: 0 10px 20px rgba(37, 99, 235, 0.25);
     --gradient-bg: linear-gradient(135deg, #f7f5ff 0%, #eef2ff 100%);
     --gradient-panel: linear-gradient(135deg, #ffffff 0%, #faf7ff 100%);
     --radius-lg: 20px;

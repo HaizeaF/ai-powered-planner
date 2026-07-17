@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, Output, effect, inject, signal } from "@angular/core";
+import { Component, EventEmitter, Output, effect, inject, input, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { LucideX } from "@lucide/angular";
+import { LucideX, LucideCheck, LucideTrash2 } from "@lucide/angular";
 import { TaskService } from "../../../services/task";
 import { ProjectService } from "../../../services/project";
-import { COLOR_PALETTE, DEFAULT_COLOR, RecurrenceType, TaskType } from "../../../models/enums";
+import { COLOR_PALETTE, DEFAULT_COLOR, TaskType } from "../../../models/enums";
 import { Task, TaskCreate, TaskUpdate } from "../../../models/task";
 import { formatTimeLabel } from "../../../utils/dateUtils";
 
@@ -12,20 +12,19 @@ export type TaskModalState = { mode: "create"; defaultDate: string } | { mode: "
 
 @Component({
     selector: "app-task-modal",
-    imports: [CommonModule, FormsModule, LucideX],
+    imports: [CommonModule, FormsModule, LucideCheck, LucideTrash2, LucideX],
     templateUrl: "./taskModal.html",
-    styleUrl: "./taskModal.css",
+    styleUrl: "./taskModal.css"
 })
 export class TaskModal {
     private readonly taskService = inject(TaskService);
     private readonly projectService = inject(ProjectService);
 
-    @Input() state: TaskModalState | null = null;
+    readonly state = input<TaskModalState | null>(null);
     @Output() close = new EventEmitter<void>();
 
     readonly colors = COLOR_PALETTE;
     readonly TaskType = TaskType;
-    readonly RecurrenceType = RecurrenceType;
     readonly projects = this.projectService.projects;
 
     title = "";
@@ -37,18 +36,17 @@ export class TaskModal {
     isFeatured = false;
     color = DEFAULT_COLOR;
     projectId: number | null = null;
-    recurrence: RecurrenceType = RecurrenceType.NONE;
     saving = signal(false);
 
     constructor() {
         effect(() => {
-            const s = this.state;
-            if (!s) return;
+            const state = this.state();
+            if (!state) return;
 
-            if (s.mode === "create") {
-                this.resetForm(s.defaultDate);
+            if (state.mode === "create") {
+                this.resetForm(state.defaultDate);
             } else {
-                this.loadFromTask(s.task);
+                this.loadFromTask(state.task);
             }
         });
     }
@@ -63,7 +61,6 @@ export class TaskModal {
         this.isFeatured = false;
         this.color = DEFAULT_COLOR;
         this.projectId = null;
-        this.recurrence = RecurrenceType.NONE;
     }
 
     private loadFromTask(task: Task): void {
@@ -77,43 +74,54 @@ export class TaskModal {
         this.isFeatured = task.is_featured;
         this.color = task.color;
         this.projectId = task.project_id ?? null;
-        this.recurrence = task.recurrence;
     }
 
     get isEdit(): boolean {
-        return this.state?.mode === "edit";
+        return this.state()?.mode === "edit";
     }
 
     get isCompletable(): boolean {
         return this.projectId != null || this.type === TaskType.TASK;
     }
 
-    private buildStartDatetime(): string {
-        const time = this.hasTime ? this.time : "00:00";
-        return `${this.date}T${time}:00`;
+    toggleHasTime(): void {
+        this.hasTime = !this.hasTime;
     }
 
-    async onSubmit(): Promise<void> {
-        if (!this.title.trim() || !this.date) return;
-        this.saving.set(true);
+    toggleFeatured(): void {
+        this.isFeatured = !this.isFeatured;
+    }
 
-        const payload: TaskCreate | TaskUpdate = {
+    private buildStartDatetime(date: string): string {
+        const time = this.hasTime ? this.time : "00:00";
+        return `${date}T${time}:00`;
+    }
+
+    private buildPayload(date: string): TaskCreate | TaskUpdate {
+        return {
             title: this.title.trim(),
             description: this.description.trim() || null,
-            start_datetime: this.buildStartDatetime(),
-            recurrence: this.recurrence,
+            start_datetime: this.buildStartDatetime(date),
             type: this.type,
             is_featured: this.isFeatured,
             color: this.color,
             project_id: this.projectId
         };
+    }
+
+
+    async onSubmit(): Promise<void> {
+        if (!this.title.trim() || !this.date) return;
+        this.saving.set(true);
 
         try {
-        if (this.state?.mode === "edit") {
-            await this.taskService.update(this.state.task.id, payload);
-        } else {
-            await this.taskService.create(payload as TaskCreate);
-        }
+            const state = this.state();
+            if (state?.mode === "edit") {
+                await this.taskService.update(state.task.id, this.buildPayload(this.date));
+            } else {
+                await this.taskService.create(this.buildPayload(this.date) as TaskCreate);
+            }
+
             this.close.emit();
         } finally {
             this.saving.set(false);
@@ -121,10 +129,11 @@ export class TaskModal {
     }
 
     async onDelete(): Promise<void> {
-        if (this.state?.mode !== "edit") return;
+        const state = this.state();
+        if (state?.mode !== "edit") return;
         this.saving.set(true);
         try {
-            await this.taskService.delete(this.state.task.id);
+            await this.taskService.delete(state.task.id);
             this.close.emit();
         } finally {
             this.saving.set(false);

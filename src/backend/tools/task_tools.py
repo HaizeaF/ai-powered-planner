@@ -4,11 +4,11 @@ from typing import Optional
 from langchain.tools import tool, ToolRuntime
 from src.backend.schemas.context import Context
 from src.backend.models.task import TaskCreate, TaskUpdate
-from src.backend.schemas.enums import RecurrenceType, TaskType
+from src.backend.schemas.enums import TaskType
 from src.backend.services.task_service import TaskService
 
 @tool
-async def create_task(title: str, start_datetime: str, runtime: ToolRuntime[Context], description: Optional[str] = None, end_datetime: Optional[str] = None, task_type: str = "task", recurrence: str = "none", project_id: Optional[int] = None) -> str:
+async def create_task(title: str, start_datetime: str, runtime: ToolRuntime[Context], description: Optional[str] = None, end_datetime: Optional[str] = None, task_type: str = "task", project_id: Optional[int] = None) -> str:
     """Create a new task or event."""
     service = TaskService(runtime.context.session)
     data = TaskCreate(
@@ -17,7 +17,6 @@ async def create_task(title: str, start_datetime: str, runtime: ToolRuntime[Cont
         start_datetime=datetime.fromisoformat(start_datetime),
         end_datetime=datetime.fromisoformat(end_datetime) if end_datetime else None,
         type=TaskType(task_type),
-        recurrence=RecurrenceType(recurrence),
         project_id=project_id,
     )
     created = await service.create(data)
@@ -36,7 +35,7 @@ async def complete_task(task_id: int, runtime: ToolRuntime[Context]) -> str:
     return f"Task {task_id} marked as completed."
 
 @tool
-async def update_task(task_id: int, runtime: ToolRuntime[Context], title: Optional[str] = None, description: Optional[str] = None, start_datetime: Optional[str] = None, end_datetime: Optional[str] = None, recurrence: Optional[str] = None, project_id: Optional[int] = None) -> str:
+async def update_task(task_id: int, runtime: ToolRuntime[Context], title: Optional[str] = None, description: Optional[str] = None, start_datetime: Optional[str] = None, end_datetime: Optional[str] = None, project_id: Optional[int] = None) -> str:
     """Update fields of an existing task. Only provided fields are changed."""
     service = TaskService(runtime.context.session)
     task = await service.get(task_id)
@@ -48,7 +47,6 @@ async def update_task(task_id: int, runtime: ToolRuntime[Context], title: Option
         "description": description,
         "start_datetime": datetime.fromisoformat(start_datetime) if start_datetime else None,
         "end_datetime": datetime.fromisoformat(end_datetime) if end_datetime else None,
-        "recurrence": RecurrenceType(recurrence) if recurrence else None,
         "project_id": project_id,
     }
     data = TaskUpdate(**{key: value for key, value in fields.items() if value is not None})

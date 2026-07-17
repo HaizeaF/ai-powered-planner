@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
-from src.backend.schemas.enums import TaskType, ColorType, RecurrenceType
+from src.backend.schemas.enums import TaskType, ColorType
 if TYPE_CHECKING:
     from src.backend.models.project import Project, ProjectRead
 
@@ -12,7 +12,6 @@ class TaskBase(SQLModel):
     description: Optional[str] = None
     start_datetime: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     end_datetime: Optional[datetime] = None
-    recurrence: RecurrenceType = RecurrenceType.NONE
     type: TaskType = TaskType.TASK
     is_featured: bool = False
     color: str = ColorType.PURPLE
@@ -35,7 +34,6 @@ class TaskUpdate(SQLModel):
     description: Optional[str] = None
     start_datetime: Optional[datetime] = None
     end_datetime: Optional[datetime] = None
-    recurrence: Optional[RecurrenceType] = None
     type: Optional[TaskType] = None
     is_featured: Optional[bool] = None
     color: Optional[str] = None

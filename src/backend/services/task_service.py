@@ -18,6 +18,8 @@ class TaskService:
         self.session.add(task)
         await self.session.flush() 
         await self.session.refresh(task, attribute_names=["project"])
+        if task.project is not None:
+            await self.session.refresh(task.project, attribute_names=["tasks"])
         
         return task
 
@@ -70,6 +72,8 @@ class TaskService:
         self.session.add(task)
         await self.session.flush() 
         await self.session.refresh(task, attribute_names=["project"])
+        if task.project is not None:
+            await self.session.refresh(task.project, attribute_names=["tasks"])
 
         return task
 

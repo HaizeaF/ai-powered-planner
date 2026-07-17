@@ -1,10 +1,15 @@
-<div class="modal-backdrop" *ngIf="state" (click)="onBackdropClick()">
+<div class="modal-backdrop" *ngIf="state()" (click)="onBackdropClick()">
     <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <h3>{{ isEdit ? "Edit task" : "New task" }}</h3>
-            <button class="icon-button close-btn" (click)="close.emit()" aria-label="Close">
-                <svg lucideX [size]="20"></svg>
-            </button>
+            <div class="header-actions">
+                <button type="button" class="icon-button delete-btn" *ngIf="isEdit" (click)="onDelete()" [disabled]="saving()" aria-label="Delete task">
+                    <svg lucideTrash2 [size]="18"></svg>
+                </button>
+                <button class="icon-button close-btn" (click)="close.emit()" aria-label="Close">
+                    <svg lucideX [size]="20"></svg>
+                </button>
+            </div>
         </div>
 
         <form (ngSubmit)="onSubmit()">
@@ -24,22 +29,24 @@
                     <input type="date" [(ngModel)]="date" name="date" required />
                 </label>
 
-                <label class="field checkbox-field">
-                    <input type="checkbox" [(ngModel)]="hasTime" name="hasTime" />
-                    <span>Has time</span>
-                </label>
-
                 <label class="field" *ngIf="hasTime">
                     <span>Time</span>
                     <input type="time" [(ngModel)]="time" name="time" />
                 </label>
+
+                <div class="field checkbox-field">
+                    <span class="check-toggle" [class.checked]="hasTime" (click)="toggleHasTime()">
+                        <svg *ngIf="hasTime" lucideCheck [size]="15"></svg>
+                    </span>
+                    <span (click)="toggleHasTime()">Has time</span>
+                </div>
             </div>
 
             <div class="field-row">
                 <label class="field">
                     <span>Type</span>
                     <select [(ngModel)]="type" name="type">
-                        <option [value]="TaskType.TASK">Task (completable)</option>
+                        <option [value]="TaskType.TASK">Task</option>
                         <option [value]="TaskType.EVENT">Event</option>
                     </select>
                 </label>
@@ -53,23 +60,15 @@
                         </option>
                     </select>
                 </label>
-
-                <label class="field">
-                    <span>Recurrence</span>
-                    <select [(ngModel)]="recurrence" name="recurrence">
-                        <option [value]="RecurrenceType.NONE">Does not repeat</option>
-                        <option [value]="RecurrenceType.DAILY">Daily</option>
-                        <option [value]="RecurrenceType.WEEKLY">Weekly</option>
-                        <option [value]="RecurrenceType.MONTHLY">Monthly</option>
-                    </select>
-                </label>
             </div>
 
             <div class="field-row align-center">
-                <label class="field checkbox-field">
-                    <input type="checkbox" [(ngModel)]="isFeatured" name="isFeatured" />
-                    <span>Featured task (highlighted on the calendar)</span>
-                </label>
+                <div class="field checkbox-field">
+                    <span class="check-toggle" [class.checked]="isFeatured" (click)="toggleFeatured()">
+                        <svg *ngIf="isFeatured" lucideCheck [size]="15"></svg>
+                    </span>
+                    <span (click)="toggleFeatured()">Featured task</span>
+                </div>
             </div>
 
             <div class="field">
@@ -82,7 +81,6 @@
             <p class="hint" *ngIf="!isCompletable">This type of task cannot be marked as completed.</p>
 
             <div class="modal-actions">
-                <button type="button" class="btn-danger" *ngIf="isEdit" (click)="onDelete()" [disabled]="saving()">Delete</button>
                 <div class="spacer"></div>
                 <button type="button" class="btn-secondary" (click)="close.emit()">Cancel</button>
                 <button type="submit" class="btn-primary" [disabled]="saving()">Save</button>

@@ -11,8 +11,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    background: var(--gradient-primary);
-    box-shadow: 0 12px 26px rgba(124, 58, 237, 0.35);
+    background: var(--gradient-secondary);
+    box-shadow: var(--shadow-secondary);
     z-index: 200;
     transition: transform 0.2s ease;
 }
@@ -64,7 +64,7 @@
     border: none;
     background: none;
     padding: 2px;
-    color: var(--color-primary);
+    color: var(--color-secondary);
     cursor: pointer;
     font-size: 16px;
 }
@@ -107,9 +107,9 @@
 .message.user {
     align-self: flex-end;
     color: white;
-    background: var(--gradient-primary);
+    background: var(--gradient-secondary);
     border-bottom-right-radius: 4px;
-    box-shadow: var(--shadow-strong);
+    box-shadow: var(--shadow-secondary);
 }
 
 .message.agent {
@@ -157,12 +157,12 @@
     border-radius: 999px;
     color: white;
     cursor: pointer;
-    background: var(--gradient-primary);
-    box-shadow: 0 8px 18px rgba(124, 58, 237, 0.25);
+    background: var(--gradient-secondary);
+    box-shadow: var(--shadow-secondary)
 }
 
 .chat-form button:disabled {
-    background: #c4b5fd;
+    background: #94b9f1;
     cursor: not-allowed;
     box-shadow: none;
 }

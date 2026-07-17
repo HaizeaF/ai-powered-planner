@@ -1,12 +1,11 @@
 import { Project } from "./project"
-import { RecurrenceType, TaskType } from "./enums"
+import { TaskType } from "./enums"
 
 export interface TaskBase {
     title: string;
     description?: string | null;
     start_datetime: string;
     end_datetime?: string | null;
-    recurrence: RecurrenceType;
     type: TaskType;
     is_featured: boolean;
     color: string;
@@ -20,7 +19,6 @@ export interface TaskUpdate {
     description?: string | null;
     start_datetime?: string;
     end_datetime?: string | null;
-    recurrence?: RecurrenceType;
     type?: TaskType;
     is_featured?: boolean;
     color?: string;
