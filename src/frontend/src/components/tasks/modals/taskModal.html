@@ -34,11 +34,14 @@
                     <input type="time" [(ngModel)]="time" name="time" />
                 </label>
 
-                <div class="field checkbox-field">
-                    <span class="check-toggle" [class.checked]="hasTime" (click)="toggleHasTime()">
-                        <svg *ngIf="hasTime" lucideCheck [size]="15"></svg>
-                    </span>
-                    <span (click)="toggleHasTime()">Has time</span>
+                <div class="field time-field-checkbox">
+                    <span class="field-label-spacer">&nbsp;</span>
+                    <div class="checkbox-row" (click)="toggleHasTime()">
+                        <span class="check-toggle" [class.checked]="hasTime">
+                            <svg *ngIf="hasTime" lucideCheck [size]="15"></svg>
+                        </span>
+                        <span>Has time</span>
+                    </div>
                 </div>
             </div>
 

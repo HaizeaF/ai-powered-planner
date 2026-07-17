@@ -66,6 +66,24 @@
     min-width: 0;
 }
 
+.time-field-checkbox {
+    flex-direction: column;
+    flex: 0 0 auto;
+}
+
+.field-label-spacer {
+    visibility: hidden;
+}
+
+.checkbox-row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
 .checkbox-field {
     flex-direction: row;
     align-items: center;

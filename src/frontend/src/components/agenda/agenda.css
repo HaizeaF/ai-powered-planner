@@ -17,29 +17,6 @@
     font-size: 14px;
 }
 
-.progress-ring {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.progress-ring-inner {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color-primary);
-}
-
 .task-list {
     flex: 1;
     overflow-y: auto;
@@ -138,4 +115,36 @@
 .add-task-full {
     margin-top: 16px;
     width: 100%;
+}
+
+@property --progress {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+}
+
+.progress-ring {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    --progress: 0;
+    background: conic-gradient(var(--color-primary) calc(var(--progress) * 1%), #e5e0f7 0);
+    transition: --progress 0.8s ease;
+}
+
+.progress-ring-inner {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-primary);
 }

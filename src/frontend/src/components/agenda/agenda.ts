@@ -48,7 +48,7 @@ export class Agenda {
     });
 
     readonly progressStyle = computed(() => ({
-        background: `conic-gradient(var(--color-primary) ${this.progress()}%, #e5e0f7 0)`,
+        "--progress": `${this.progress()}`
     }));
 
     isCompletable(task: Task): boolean {
