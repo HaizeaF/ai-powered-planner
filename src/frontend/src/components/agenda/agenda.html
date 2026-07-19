@@ -10,6 +10,11 @@
     </div>
 
     <div class="task-list">
+        <div class="deadline-row" *ngFor="let project of deadlineProjects()" [style.background]="project.color">
+            <svg lucideFlag [size]="15"></svg>
+            <span class="deadline-title">{{ project.name }}</span>
+        </div>
+
         <div class="task-row" *ngFor="let task of dayTasks()" [class.completed]="task.completed" (click)="onEditTask(task)">
             <span class="task-color-dot" [style.background]="task.color"></span>
 

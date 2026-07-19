@@ -1,20 +1,23 @@
 import { Component, EventEmitter, Output, computed, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { LucideCheck } from "@lucide/angular";
+import { LucideCheck, LucideFlag } from "@lucide/angular";
 import { TaskService } from "../../services/task";
+import { ProjectService } from "../../services/project";
 import { SelectedDateService } from "../../services/selectedDate";
 import { Task } from "../../models/task";
+import { Project } from "../../models/project";
 import { MONTH_LABELS } from "../../utils/dateLabels";
 import { formatTimeLabel } from "../../utils/dateUtils";
 
 @Component({
     selector: "app-agenda",
-    imports: [CommonModule, LucideCheck],
+    imports: [CommonModule, LucideCheck, LucideFlag],
     templateUrl: "./agenda.html",
     styleUrl: "./agenda.css",
 })
 export class Agenda {
     private readonly taskService = inject(TaskService);
+    private readonly projectService = inject(ProjectService);
     private readonly selectedDateService = inject(SelectedDateService);
 
     @Output() addTask = new EventEmitter<string>();
@@ -25,6 +28,13 @@ export class Agenda {
     readonly dateLabel = computed(() => {
         const [year, month, day] = this.selectedDate().split("-").map(Number);
         return `${MONTH_LABELS[month - 1]} ${day}, ${year}`;
+    });
+
+    readonly deadlineProjects = computed<Project[]>(() => {
+        const date = this.selectedDate();
+        return this.projectService
+            .projects()
+            .filter((p) => p.end_date?.slice(0, 10) === date);
     });
 
     readonly dayTasks = computed(() => {
@@ -74,5 +84,9 @@ export class Agenda {
 
     onAddTask(): void {
         this.addTask.emit(this.selectedDate());
+    }
+
+    constructor() {
+        this.projectService.loadAll();
     }
 }

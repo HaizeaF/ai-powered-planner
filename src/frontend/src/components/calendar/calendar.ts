@@ -1,30 +1,38 @@
 import { Component, EventEmitter, Output, computed, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { LucideChevronLeft, LucideChevronRight, LucidePlus } from "@lucide/angular";
+import { LucideChevronLeft, LucideChevronRight, LucideFlag, LucidePlus } from "@lucide/angular";
 import { TaskService } from "../../services/task";
+import { ProjectService } from "../../services/project";
 import { SelectedDateService } from "../../services/selectedDate";
 import { Task } from "../../models/task";
 import { MONTH_LABELS, WEEKDAY_LABELS } from "../../utils/dateLabels";
 import { toIsoDate } from "../../utils/dateUtils";
+
+interface FeaturedItem {
+    title: string;
+    color: string;
+    isDeadline: boolean;
+}
 
 interface DayCell {
     date: string;
     dayNumber: number;
     inCurrentMonth: boolean;
     isToday: boolean;
-    featuredTasks: Task[];
+    featuredTasks: FeaturedItem[];
     overflowCount: number;
     totalCount: number;
 }
 
 @Component({
     selector: "app-calendar",
-    imports: [CommonModule, LucideChevronLeft, LucideChevronRight, LucidePlus],
+    imports: [CommonModule, LucideChevronLeft, LucideChevronRight, LucidePlus, LucideFlag],
     templateUrl: "./calendar.html",
     styleUrl: "./calendar.css"
 })
 export class Calendar {
     private readonly taskService = inject(TaskService);
+    private readonly projectService = inject(ProjectService);
     private readonly selectedDateService = inject(SelectedDateService);
 
     @Output() addTask = new EventEmitter<string>();
@@ -41,6 +49,7 @@ export class Calendar {
 
     readonly weeks = computed<DayCell[][]>(() => {
         const tasks = this.taskService.tasks();
+        const projects = this.projectService.projects();
         const view = this.viewDate();
         const firstOfMonth = new Date(view.getFullYear(), view.getMonth(), 1);
         const leadingBlank = (firstOfMonth.getDay() + 6) % 7;
@@ -55,13 +64,34 @@ export class Calendar {
             tasksByDay.set(day, list);
         }
 
+        const deadlinesByDay = new Map<string, FeaturedItem[]>();
+        for (const project of projects) {
+            if (!project.end_date) continue;
+            const day = project.end_date.slice(0, 10);
+            const list = deadlinesByDay.get(day) ?? [];
+            list.push({ title: `${project.name} deadline`, color: project.color, isDeadline: true });
+            deadlinesByDay.set(day, list);
+        }
+
         const cells: DayCell[] = [];
         for (let i = 0; i < 42; i++) {
             const date = new Date(start);
             date.setDate(start.getDate() + i);
             const iso = toIsoDate(date);
             const dayTasks = tasksByDay.get(iso) ?? [];
-            const featured = dayTasks.filter((t) => t.is_featured).slice(0, 3);
+            const deadlines = deadlinesByDay.get(iso) ?? [];
+            const remainingSlots = Math.max(3 - deadlines.length, 0);
+
+            const featuredCandidates = dayTasks.filter((t) => t.is_featured);
+            const withoutTime = featuredCandidates.filter((t) => !this.taskService.hasTime(t));
+            const withTime = featuredCandidates
+                .filter((t) => this.taskService.hasTime(t))
+                .sort((a, b) => a.start_datetime.localeCompare(b.start_datetime));
+            const orderedFeaturedTasks = [...withoutTime, ...withTime]
+                .slice(0, remainingSlots)
+                .map((t): FeaturedItem => ({ title: t.title, color: t.color, isDeadline: false }));
+
+            const featured = [...deadlines, ...orderedFeaturedTasks];
 
             cells.push({
                 date: iso,
@@ -69,7 +99,7 @@ export class Calendar {
                 inCurrentMonth: date.getMonth() === view.getMonth(),
                 isToday: iso === this.today,
                 featuredTasks: featured,
-                overflowCount: Math.max(dayTasks.length - featured.length, 0),
+                overflowCount: Math.max(dayTasks.length - orderedFeaturedTasks.length, 0),
                 totalCount: dayTasks.length,
             });
         }
@@ -86,6 +116,7 @@ export class Calendar {
 
     constructor() {
         this.taskService.loadAll();
+        this.projectService.loadAll();
     }
 
     prevMonth(): void {

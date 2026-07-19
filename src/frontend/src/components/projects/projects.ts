@@ -23,11 +23,16 @@ export class Projects {
         const tasks = this.taskService.tasks();
 
         return projects
-        .filter((p) => !p.archived)
         .map((project) => {
             const projectTasks = tasks.filter((t) => t.project_id === project.id);
             const completedCount = projectTasks.filter((t) => t.completed).length;
             return { ...project, completedCount, totalCount: projectTasks.length };
+        })
+        .sort((a, b) => {
+            if (!a.end_date && !b.end_date) return 0;
+            if (!a.end_date) return 1;
+            if (!b.end_date) return -1;
+            return b.end_date.localeCompare(a.end_date);
         });
     });
 

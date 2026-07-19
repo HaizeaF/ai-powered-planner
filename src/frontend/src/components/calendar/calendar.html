@@ -26,7 +26,10 @@
                     </button>
                 </div>
                 <div class="featured-tasks">
-                    <span class="featured-task" *ngFor="let task of cell.featuredTasks" [style.background]="task.color" [title]="task.title">{{ task.title }}</span>
+                    <span class="featured-task" *ngFor="let item of cell.featuredTasks" [class.deadline-task]="item.isDeadline" [style.background]="item.color" [title]="item.title">
+                        <svg *ngIf="item.isDeadline" lucideFlag [size]="10" class="deadline-icon"></svg>
+                        {{ item.title }}
+                    </span>
                 </div>
 
                 <span class="total-count" *ngIf="cell.totalCount > 0">{{ cell.totalCount }}</span>

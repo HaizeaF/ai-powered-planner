@@ -3,7 +3,6 @@ export interface ProjectBase {
     description?: string | null;
     end_date?: string | null;
     color: string;
-    archived: boolean;
 }
 
 export type ProjectCreate = ProjectBase;
@@ -13,7 +12,6 @@ export interface ProjectUpdate {
     description?: string | null;
     end_date?: string | null;
     color?: string;
-    archived?: boolean;
 }
 
 export interface Project extends ProjectBase {

@@ -92,8 +92,7 @@ export class ProjectModal {
             name: this.name.trim(),
             description: this.description.trim() || null,
             end_date: this.endDate || null,
-            color: this.color,
-            archived: false
+            color: this.color
         };
 
         try {
