@@ -1,0 +1,16 @@
+<div class="grid">
+    <div class="panel calendar-panel">
+        <app-calendar (addTask)="openNewTask($event)"></app-calendar>
+    </div>
+
+    <div class="panel projects-panel">
+        <app-projects (addProject)="openNewProject()" (openProject)="openProject($event)"></app-projects>
+    </div>
+
+    <div class="panel agenda-panel">
+        <app-agenda (addTask)="openNewTask($event)" (editTask)="openEditTask($event)"></app-agenda>
+    </div>
+</div>
+
+<app-task-modal [state]="taskModalState()" (close)="taskModalState.set(null)"></app-task-modal>
+<app-project-modal [state]="projectModalState()" (close)="projectModalState.set(null)"></app-project-modal>

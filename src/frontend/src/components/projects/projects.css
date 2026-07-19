@@ -1,0 +1,140 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.projects-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.projects-header .section-title { 
+    margin-bottom: 0; 
+}
+
+.title-wrap {
+    flex-shrink: 0;
+}
+
+.add-project-btn {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--color-accent-purple-50);
+    flex-shrink: 0;
+}
+
+.add-project-btn:hover:not(:disabled) {
+    background: var(--color-border);
+}
+
+.projects-grid {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+    margin-top: 16px;
+}
+
+.project-card {
+    position: relative;
+    flex: 0 0 auto;
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--gradient-panel);
+    cursor: pointer;
+    text-align: left;
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+    padding: 0;
+}
+
+.project-card:hover {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: inset 0 3px 8px rgba(45, 27, 105, 0.16), inset 0 1px 3px rgba(45, 27, 105, 0.1);
+}
+
+.project-color-bar {
+    width: 100%;
+    height: 6px;
+    flex-shrink: 0;
+}
+
+.project-card-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    flex: 1;
+}
+
+.project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.project-name {
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.project-count {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.project-description {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+}
+
+.progress-bar {
+    margin-top: auto;
+    height: 6px;
+    border-radius: 999px;
+    background: #e5e0f7;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    transition: width 0.6s ease;
+    animation: grow-bar 0.8s ease-out;
+}
+
+@keyframes grow-bar {
+    from {
+        width: 0;
+    }
+}
+
+.empty-state {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    margin: auto;
+}

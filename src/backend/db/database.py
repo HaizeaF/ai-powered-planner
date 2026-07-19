@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.backend.config.config import Config
 
-engine = create_async_engine(Config.DATABASE_URL, echo=True)
+engine = create_async_engine(Config.DATABASE_URL, echo=False)
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """FastAPI dependency that yields an async database session.
@@ -16,6 +16,6 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
             await session.commit()
-        except Exception as e:
+        except Exception:
             await session.rollback()
             raise

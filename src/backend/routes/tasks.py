@@ -5,19 +5,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.backend.db.database import get_session
 from src.backend.models.project import ProjectRead
 from src.backend.models.task import Task, TaskCreate, TaskRead, TaskUpdate
-from src.backend.services.project_service import ProjectService
 from src.backend.services.task_service import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
-
-def _to_read(task: Task) -> TaskRead:
-    """Build a TaskRead, converting the nested project (if any) to ProjectRead."""
-    project_read = None
-    if task.project is not None:
-        progress = ProjectService.calculate_progress(task.project)
-        project_read = ProjectRead(**task.project.model_dump(), progress=progress)
-
-    return TaskRead(**task.model_dump(), project=project_read)
 
 @router.post("", response_model=TaskRead)
 async def create_task(task_create: TaskCreate, session: AsyncSession = Depends(get_session)) -> TaskRead:
@@ -25,16 +15,16 @@ async def create_task(task_create: TaskCreate, session: AsyncSession = Depends(g
     service = TaskService(session)
     task = await service.create(task_create)
 
-    return _to_read(task)
+    return TaskRead(**task.model_dump())
 
 @router.get("", response_model=list[TaskRead])
 async def list_tasks(task_date: date | None = Query(default=None), session: AsyncSession = Depends(get_session)) -> list[TaskRead]:
     """List tasks, optionally filtered by day."""
     service = TaskService(session)
     if task_date is not None:
-        return [_to_read(task) for task in await service.get_by_day(task_date)]
+        return [TaskRead(**task.model_dump()) for task in await service.get_by_day(task_date)]
     
-    return [_to_read(task) for task in await service.get_all()]
+    return [TaskRead(**task.model_dump()) for task in await service.get_all()]
 
 @router.get("/{task_id}", response_model=TaskRead)
 async def get_task(task_id: int, session: AsyncSession = Depends(get_session)) -> TaskRead:
@@ -44,7 +34,7 @@ async def get_task(task_id: int, session: AsyncSession = Depends(get_session)) -
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    return _to_read(task)
+    return TaskRead(**task.model_dump())
 
 @router.patch("/{task_id}", response_model=TaskRead)
 async def update_task(task_id: int, task_update: TaskUpdate, session: AsyncSession = Depends(get_session)) -> TaskRead:
@@ -53,8 +43,9 @@ async def update_task(task_id: int, task_update: TaskUpdate, session: AsyncSessi
     task = await service.get(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    
-    return _to_read(await service.update(task, task_update))
+    task = await service.update(task, task_update)
+
+    return TaskRead(**task.model_dump())
 
 @router.post("/{task_id}/complete", response_model=TaskRead)
 async def complete_task(task_id: int, session: AsyncSession = Depends(get_session)) -> TaskRead:
@@ -63,8 +54,9 @@ async def complete_task(task_id: int, session: AsyncSession = Depends(get_sessio
     task = await service.get(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    
-    return _to_read(await service.update(task, TaskUpdate(completed=True)))
+    task = await service.update(task, TaskUpdate(completed=True))
+
+    return TaskRead(**task.model_dump())
 
 @router.delete("/{task_id}", status_code=204)
 async def delete_task(task_id: int, session: AsyncSession = Depends(get_session)) -> None:

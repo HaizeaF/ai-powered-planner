@@ -12,7 +12,6 @@ class ProjectBase(SQLModel):
     description: Optional[str] = None
     end_date: Optional[date] = None
     color: str = ColorType.PURPLE
-    archived: bool = False
 
 class Project(ProjectBase, table=True):
     """Project persisted in the database."""
@@ -30,12 +29,10 @@ class ProjectUpdate(SQLModel):
     description: Optional[str] = None
     end_date: Optional[date] = None
     color: Optional[str] = None
-    archived: Optional[bool] = None
 
 class ProjectRead(ProjectBase):
     """Payload for reading a project, includes the computed progress."""
     id: int
     created_at: datetime
-    progress: float
 
 TaskRead.model_rebuild(_types_namespace={"ProjectRead": ProjectRead})

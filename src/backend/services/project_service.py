@@ -21,6 +21,8 @@ class ProjectService:
         await self.session.flush() 
         await self.session.refresh(project, attribute_names=["tasks"])
 
+        print(f"Project {project_create.name} created.")
+
         return project
 
     async def get(self, project_id: int) -> Project | None:
@@ -33,6 +35,8 @@ class ProjectService:
         )
         result = await self.session.scalars(statement)
 
+        print("Retrieving project.")
+
         return result.first()
 
     async def get_all(self) -> list[Project]:
@@ -43,6 +47,8 @@ class ProjectService:
             .execution_options(populate_existing=True)
         )
         result = await self.session.scalars(statement)
+
+        print("Retrieving all projects.")
 
         return list(result)
 
@@ -57,29 +63,17 @@ class ProjectService:
         await self.session.flush() 
         await self.session.refresh(project, attribute_names=["tasks"])
 
+        print(f"Updated project {project.name}")
+
         return project
 
     async def delete(self, project: Project) -> None:
         """Delete a project and all its associated tasks."""
+        print(f"Deleting project {project.name}")
+
         await self.session.refresh(project, attribute_names=["tasks"])
 
         for task in project.tasks:
-            await self.session.delete(task) # TODO: Alembic no incluye delete en cascada? 
+            await self.session.delete(task)
 
         await self.session.delete(project)
-
-    @staticmethod
-    def calculate_progress(project: Project) -> float:
-        """Calculate the completion percentage of a project.
-
-        Only tasks of type 'task' are considered. Events are ignored because
-        they cannot be completed.
-        """
-        tasks = [task for task in project.tasks if task.type == TaskType.TASK]
-
-        if not tasks:
-            return 0.0
-
-        completed = sum(task.completed for task in tasks)
-
-        return completed / len(tasks)

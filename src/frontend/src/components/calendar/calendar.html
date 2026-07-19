@@ -1,0 +1,39 @@
+<div class="panel-card">
+    <div class="calendar-header">
+        <h2 class="section-title">Calendar</h2>
+        <div class="month-nav">
+            <button class="icon-button" (click)="prevMonth()" aria-label="Previous month">
+                <svg lucideChevronLeft [size]="18"></svg>
+            </button>
+            <span class="month-label">{{ monthLabel() }}</span>
+            <button class="icon-button" (click)="nextMonth()" aria-label="Next month">
+                <svg lucideChevronRight [size]="18"></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="weekday-row">
+        <span *ngFor="let day of weekdays" class="weekday">{{ day }}</span>
+    </div>
+
+    <div class="weeks">
+        <div class="week-row" *ngFor="let week of weeks()">
+            <div class="day-cell" *ngFor="let cell of week" [class.outside-month]="!cell.inCurrentMonth" [class.selected]="cell.date === selectedDate()" [class.today]="cell.isToday" (click)="selectDay(cell)">
+                <div class="day-cell-header">
+                    <span class="day-number">{{ cell.dayNumber }}</span>
+                    <button class="add-task-btn" (click)="onAddTask($event, cell.date)" aria-label="Add task">
+                        <svg lucidePlus [size]="13"></svg>
+                    </button>
+                </div>
+                <div class="featured-tasks">
+                    <span class="featured-task" *ngFor="let item of cell.featuredTasks" [class.deadline-task]="item.isDeadline" [style.background]="item.color" [title]="item.title">
+                        <svg *ngIf="item.isDeadline" lucideFlag [size]="10" class="deadline-icon"></svg>
+                        {{ item.title }}
+                    </span>
+                </div>
+
+                <span class="total-count" *ngIf="cell.totalCount > 0">{{ cell.totalCount }}</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -7,11 +7,9 @@ class TaskType(str, Enum):
 
 class ColorType(str, Enum):
     "Color type: determines tasks color"
-    PURPLE = "#7c3aed"
-
-class RecurrenceType(str, Enum):
-    """Recurrence type: determines tasks recurrence."""
-    NONE = "none"
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    MONTHLY = "monthly"
+    PURPLE = "#7c3aed",
+    AMBAR = "#f59e0b",
+    RED = "#ef4444",
+    GREEN = "#10b981",
+    BLUE = "#3b82f6",
+    PINK = "#ec4899"

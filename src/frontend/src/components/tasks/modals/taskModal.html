@@ -1,0 +1,93 @@
+<div class="modal-backdrop" *ngIf="state()" (click)="onBackdropClick()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ isEdit ? "Edit task" : "New task" }}</h3>
+            <div class="header-actions">
+                <button type="button" class="icon-button delete-btn" *ngIf="isEdit" (click)="onDelete()" [disabled]="saving()" aria-label="Delete task">
+                    <svg lucideTrash2 [size]="18"></svg>
+                </button>
+                <button class="icon-button close-btn" (click)="close.emit()" aria-label="Close">
+                    <svg lucideX [size]="20"></svg>
+                </button>
+            </div>
+        </div>
+
+        <form (ngSubmit)="onSubmit()">
+            <label class="field">
+                <span>Title</span>
+                <input type="text" [(ngModel)]="title" name="title" required maxlength="120" placeholder="E.g. Team meeting" />
+            </label>
+
+            <label class="field">
+                <span>Description</span>
+                <textarea [(ngModel)]="description" name="description" rows="3" placeholder="Optional"></textarea>
+            </label>
+
+            <div class="field-row">
+                <label class="field">
+                    <span>Date</span>
+                    <input type="date" [(ngModel)]="date" name="date" required />
+                </label>
+
+                <label class="field" *ngIf="hasTime">
+                    <span>Time</span>
+                    <input type="time" [(ngModel)]="time" name="time" />
+                </label>
+
+                <div class="field time-field-checkbox">
+                    <span class="field-label-spacer">&nbsp;</span>
+                    <div class="checkbox-row" (click)="toggleHasTime()">
+                        <span class="check-toggle" [class.checked]="hasTime">
+                            <svg *ngIf="hasTime" lucideCheck [size]="15"></svg>
+                        </span>
+                        <span>Has time</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <label class="field">
+                    <span>Type</span>
+                    <select [(ngModel)]="type" name="type">
+                        <option [value]="TaskType.TASK">Task</option>
+                        <option [value]="TaskType.EVENT">Event</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Project</span>
+                    <select [(ngModel)]="projectId" name="projectId">
+                        <option [ngValue]="null">No project</option>
+                        <option *ngFor="let project of projects()" [ngValue]="project.id">
+                            {{ project.name }}
+                        </option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="field-row align-center">
+                <div class="field checkbox-field">
+                    <span class="check-toggle" [class.checked]="isFeatured" (click)="toggleFeatured()">
+                        <svg *ngIf="isFeatured" lucideCheck [size]="15"></svg>
+                    </span>
+                    <span (click)="toggleFeatured()">Featured task</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <span>Color</span>
+                <div class="color-picker">
+                    <button type="button" *ngFor="let c of colors" class="color-swatch" [class.selected]="c === color" [style.background]="c" (click)="color = c"></button>
+                </div>
+            </div>
+
+            <p class="hint" *ngIf="!isCompletable">This type of task cannot be marked as completed.</p>
+
+            <div class="modal-actions">
+                <div class="spacer"></div>
+                <button type="button" class="btn-secondary" (click)="close.emit()">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="saving()">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

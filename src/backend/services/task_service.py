@@ -18,7 +18,11 @@ class TaskService:
         self.session.add(task)
         await self.session.flush() 
         await self.session.refresh(task, attribute_names=["project"])
+        if task.project is not None:
+            await self.session.refresh(task.project, attribute_names=["tasks"])
         
+        print(f"Task {task_create.title} created.")
+
         return task
 
     async def get(self, task_id: int) -> Task | None:
@@ -31,6 +35,9 @@ class TaskService:
         )
 
         result = await self.session.scalars(statement)
+
+        print("Retrieving task.")
+
         return result.first()
 
     async def get_all(self) -> list[Task]:
@@ -41,6 +48,8 @@ class TaskService:
             .execution_options(populate_existing=True)
         )
         result = await self.session.scalars(statement)
+
+        print("Retrieving all tasks.")
 
         return list(result)
 
@@ -58,6 +67,8 @@ class TaskService:
         )
         result = await self.session.scalars(statement)
 
+        print(f"Retrieving tasks from {task_date}")
+
         return list(result)
 
     async def update(self, task: Task, task_update: TaskUpdate) -> Task:
@@ -70,9 +81,14 @@ class TaskService:
         self.session.add(task)
         await self.session.flush() 
         await self.session.refresh(task, attribute_names=["project"])
+        if task.project is not None:
+            await self.session.refresh(task.project, attribute_names=["tasks"])
+
+        print(f"Updated task {task.title}")
 
         return task
 
     async def delete(self, task: Task) -> None:
         """Delete a task."""
+        print (f"Deleting task {task.title}")
         await self.session.delete(task)

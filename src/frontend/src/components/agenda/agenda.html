@@ -1,0 +1,37 @@
+<div class="panel-card">
+    <div class="agenda-header">
+        <div>
+            <h2 class="section-title">Agenda</h2>
+            <span class="date-label">{{ dateLabel() }}</span>
+        </div>
+        <div class="progress-ring" [ngStyle]="progressStyle()">
+            <div class="progress-ring-inner">{{ progress() }}%</div>
+        </div>
+    </div>
+
+    <div class="task-list">
+        <div class="deadline-row" *ngFor="let project of deadlineProjects()" [style.background]="project.color">
+            <svg lucideFlag [size]="15"></svg>
+            <span class="deadline-title">{{ project.name }}</span>
+        </div>
+
+        <div class="task-row" *ngFor="let task of dayTasks()" [class.completed]="task.completed" (click)="onEditTask(task)">
+            <span class="task-color-dot" [style.background]="task.color"></span>
+
+            <div class="task-info">
+                <span class="task-title">{{ task.title }}</span>
+                <span class="task-meta" *ngIf="task.project as project">{{ project.name }}</span>
+            </div>
+
+            <span class="task-time" *ngIf="hasTime(task)">{{ formatTime(task) }}</span>
+
+            <button *ngIf="isCompletable(task)" class="task-check" [class.checked]="task.completed" (click)="toggleComplete($event, task)" aria-label="Mark as complete">
+                <svg *ngIf="task.completed" lucideCheck [size]="17"></svg>
+            </button>
+        </div>
+
+        <p class="empty-state" *ngIf="dayTasks().length === 0">No tasks for this day.</p>
+    </div>
+
+    <button class="btn-primary add-task-full" (click)="onAddTask()">+ Add task</button>
+</div>
