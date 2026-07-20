@@ -1,10 +1,11 @@
 """Service responsible for project-related business logic."""
-
+import logging
 from sqlmodel import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 from src.backend.models.project import Project, ProjectCreate, ProjectUpdate
-from src.backend.schemas.enums import TaskType
+
+logger = logging.getLogger(__name__)
 
 class ProjectService:
     """Service responsible for project-related business logic."""
@@ -18,10 +19,9 @@ class ProjectService:
         project = Project.model_validate(project_create)
 
         self.session.add(project)
-        await self.session.flush() 
-        await self.session.refresh(project, attribute_names=["tasks"])
+        await self._persist(project)
 
-        print(f"Project {project_create.name} created.")
+        logger.info("Created project %r (id=%s)", project.name, project.id)
 
         return project
 
@@ -34,10 +34,11 @@ class ProjectService:
             .execution_options(populate_existing=True)
         )
         result = await self.session.scalars(statement)
+        project = result.first()
 
-        print("Retrieving project.")
+        logger.debug("Fetched project id=%s -> %s", project_id, "found" if project else "not found")
 
-        return result.first()
+        return project
 
     async def get_all(self) -> list[Project]:
         """Retrieve all projects."""
@@ -47,10 +48,11 @@ class ProjectService:
             .execution_options(populate_existing=True)
         )
         result = await self.session.scalars(statement)
+        projects = list(result)
 
-        print("Retrieving all projects.")
+        logger.debug("Fetched %d projects", len(projects))
 
-        return list(result)
+        return projects
 
     async def update(self, project: Project, project_update: ProjectUpdate) -> Project:
         """Update an existing project."""
@@ -60,20 +62,25 @@ class ProjectService:
             setattr(project, key, value)
 
         self.session.add(project)
-        await self.session.flush() 
-        await self.session.refresh(project, attribute_names=["tasks"])
+        await self._persist(project)
 
-        print(f"Updated project {project.name}")
+        logger.info("Updated project %r (id=%s), fields=%s", project.name, project.id, list(values))
 
         return project
 
     async def delete(self, project: Project) -> None:
         """Delete a project and all its associated tasks."""
-        print(f"Deleting project {project.name}")
-
         await self.session.refresh(project, attribute_names=["tasks"])
+        task_count = len(project.tasks)
 
         for task in project.tasks:
             await self.session.delete(task)
 
         await self.session.delete(project)
+
+        logger.info("Deleted project %r (id=%s) and its %d tasks", project.name, project.id, task_count)
+
+    async def _persist(self, project: Project) -> None:
+        """Flush the pending write and reload the tasks relationship."""
+        await self.session.flush()
+        await self.session.refresh(project, attribute_names=["tasks"])

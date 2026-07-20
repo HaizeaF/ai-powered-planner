@@ -1,5 +1,5 @@
 """FastAPI application entry point for the chatbot."""
-
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
@@ -10,6 +10,8 @@ from src.backend.routes import projects as projects_router
 from src.backend.routes import tasks as tasks_router
 from src.backend.config.config import Config
 from contextlib import asynccontextmanager
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

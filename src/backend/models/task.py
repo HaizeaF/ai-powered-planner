@@ -11,8 +11,7 @@ class TaskBase(SQLModel):
     title: str
     description: Optional[str] = None
     start_datetime: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    end_datetime: Optional[datetime] = None
-    type: TaskType = TaskType.TASK
+    type: str = TaskType.TASK
     is_featured: bool = False
     color: str = ColorType.PURPLE
     project_id: Optional[int] = Field(default=None, foreign_key="project.id")
@@ -33,8 +32,7 @@ class TaskUpdate(SQLModel):
     title: Optional[str] = None
     description: Optional[str] = None
     start_datetime: Optional[datetime] = None
-    end_datetime: Optional[datetime] = None
-    type: Optional[TaskType] = None
+    type: Optional[str] = None
     is_featured: Optional[bool] = None
     color: Optional[str] = None
     project_id: Optional[int] = None

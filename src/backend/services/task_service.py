@@ -1,12 +1,16 @@
 """Service responsible for task-related business logic."""
-
+import logging
 from datetime import date, datetime, time, timedelta
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.orm import selectinload
 from src.backend.models.task import Task, TaskCreate, TaskUpdate
 
+logger = logging.getLogger(__name__)
+
 class TaskService:
+    """Service responsible for task-related business logic."""
+
     def __init__(self, session: AsyncSession) -> None:
         """Initialize the service with a database session."""
         self.session = session
@@ -16,12 +20,10 @@ class TaskService:
         task = Task.model_validate(task_create)
 
         self.session.add(task)
-        await self.session.flush() 
-        await self.session.refresh(task, attribute_names=["project"])
-        if task.project is not None:
-            await self.session.refresh(task.project, attribute_names=["tasks"])
-        
-        print(f"Task {task_create.title} created.")
+
+        await self._persist(task)
+
+        logger.info("Created task %r (id=%s)", task.title, task.id)
 
         return task
 
@@ -33,12 +35,12 @@ class TaskService:
             .options(selectinload(Task.project)) # type: ignore[arg-type]
             .execution_options(populate_existing=True)
         )
-
         result = await self.session.scalars(statement)
+        task = result.first()
 
-        print("Retrieving task.")
+        logger.debug("Fetched task id=%s -> %s", task_id, "found" if task else "not found")
 
-        return result.first()
+        return task
 
     async def get_all(self) -> list[Task]:
         """Retrieve all tasks."""
@@ -48,10 +50,11 @@ class TaskService:
             .execution_options(populate_existing=True)
         )
         result = await self.session.scalars(statement)
+        tasks = list(result)
 
-        print("Retrieving all tasks.")
+        logger.debug("Fetched %d tasks", len(tasks))
 
-        return list(result)
+        return tasks
 
     async def get_by_day(self, task_date: date) -> list[Task]:
         """Retrieve all tasks scheduled for a specific day."""
@@ -62,14 +65,15 @@ class TaskService:
             select(Task)
             .where(Task.start_datetime >= start)
             .where(Task.start_datetime < end)
-            .options(selectinload(Task.project))  # type: ignore[arg-type]
+            .options(selectinload(Task.project)) # type: ignore[arg-type]
             .execution_options(populate_existing=True)
         )
         result = await self.session.scalars(statement)
+        tasks = list(result)
 
-        print(f"Retrieving tasks from {task_date}")
+        logger.debug("Fetched %d tasks for %s", len(tasks), task_date.isoformat())
 
-        return list(result)
+        return tasks
 
     async def update(self, task: Task, task_update: TaskUpdate) -> Task:
         """Update an existing task."""
@@ -79,16 +83,21 @@ class TaskService:
             setattr(task, key, value)
 
         self.session.add(task)
-        await self.session.flush() 
-        await self.session.refresh(task, attribute_names=["project"])
-        if task.project is not None:
-            await self.session.refresh(task.project, attribute_names=["tasks"])
+        await self._persist(task)
 
-        print(f"Updated task {task.title}")
+        logger.info("Updated task %r (id=%s), fields=%s", task.title, task.id, list(values))
 
         return task
 
     async def delete(self, task: Task) -> None:
         """Delete a task."""
-        print (f"Deleting task {task.title}")
         await self.session.delete(task)
+
+        logger.info("Deleted task %r (id=%s)", task.title, task.id)
+
+    async def _persist(self, task: Task) -> None:
+        """Flush the pending write and reload the project relationship."""
+        await self.session.flush()
+        await self.session.refresh(task, attribute_names=["project"])
+        if task.project is not None:
+            await self.session.refresh(task.project, attribute_names=["tasks"])

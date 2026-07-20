@@ -9,14 +9,14 @@ load_dotenv(ENV_PATH)
 class Config:
     # Paths
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
-    GRAPH_IMAGE_PATH: str = str(BASE_DIR / "graph" / "graph.png")
-    
+
     # Database
     DATABASE_URL: str = f"sqlite+aiosqlite:///{BASE_DIR / 'db' / 'planner.db'}"
     CHECKPOINT_DB_PATH: str = str(BASE_DIR / "db" / "checkpoints.db")
 
     # LLM
-    LLM_MODEL: str = "qwen3:8b"
+    LLM_MODEL: str = "qwen3:14b"
+    CHAT_TIMEOUT_SECONDS: int = 120
 
     # CORS
     CORS_ORIGINS: list[str] = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "").split(",")]

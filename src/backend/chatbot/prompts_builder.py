@@ -1,5 +1,4 @@
 """Prompt builders for every prompt used across the app."""
-
 from datetime import datetime, timezone
 from src.backend.prompts.prompts import ANSWER_PROMPT
 from typing import Any

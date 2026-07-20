@@ -8,10 +8,7 @@ from src.backend.config.config import Config
 engine = create_async_engine(Config.DATABASE_URL, echo=False)
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI dependency that yields an async database session.
-    
-    This is the transaction boundary: everything done with this session during the request is committed together at the end. If anything raises, the whole transaction is rolled back, nothing partially done gets persisted.
-    """
+    """FastAPI dependency that yields an async database session."""
     async with AsyncSession(engine, expire_on_commit=False) as session:
         try:
             yield session

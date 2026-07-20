@@ -3,8 +3,7 @@ from datetime import date, datetime, timezone
 from typing import List, Optional
 from sqlmodel import Field, Relationship, SQLModel
 from src.backend.schemas.enums import ColorType
-from src.backend.models.task import Task
-from src.backend.models.task import TaskRead
+from src.backend.models.task import Task, TaskRead
 
 class ProjectBase(SQLModel):
     """Common fields for a project, shared between creation and reading."""
@@ -31,7 +30,7 @@ class ProjectUpdate(SQLModel):
     color: Optional[str] = None
 
 class ProjectRead(ProjectBase):
-    """Payload for reading a project, includes the computed progress."""
+    """Payload for reading a project."""
     id: int
     created_at: datetime
 
