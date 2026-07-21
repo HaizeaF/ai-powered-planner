@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, inject, signal } from "@angular/core";
+import { Component, ElementRef, ViewChild, afterRenderEffect, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { LucideArrowUp, LucideMessageCircle, LucideRotateCcw, LucideX } from "@lucide/angular";
@@ -25,12 +25,22 @@ export class Chatbot {
     readonly sending = signal(false);
     question = "";
 
+    constructor() {
+        afterRenderEffect(() => {
+            this.messages();
+            this.sending();
+            const el = this.chatWindowRef?.nativeElement;
+            if (el) el.scrollTop = el.scrollHeight;
+        })
+    }
+
     toggle(): void {
         this.open.update((v) => !v);
     }
 
     clearChat(): void {
         this.messages.set([]);
+        this.chatService.resetThread();
     }
 
     async send(): Promise<void> {
@@ -40,27 +50,18 @@ export class Chatbot {
         this.messages.update((list) => [...list, { role: "user", content: question }]);
         this.question = "";
         this.sending.set(true);
-        this.scrollToBottom();
 
         try {
-        const response = await this.chatService.send(question);
-        this.messages.update((list) => [...list, { role: "agent", content: response }]);
-        await Promise.all([this.taskService.loadAll(), this.projectService.loadAll()]);
+            const response = await this.chatService.send(question);
+            this.messages.update((list) => [...list, { role: "agent", content: response }]);
+            await Promise.all([this.taskService.loadAll(), this.projectService.loadAll()]);
         } catch {
-        this.messages.update((list) => [
-            ...list,
-            { role: "error", content: "Couldn't reach the assistant. Please try again." },
-        ]);
+            this.messages.update((list) => [
+                ...list,
+                { role: "error", content: "Couldn't reach the assistant. Please try again." },
+            ]);
         } finally {
-        this.sending.set(false);
-        this.scrollToBottom();
+            this.sending.set(false);
         }
-    }
-
-    private scrollToBottom(): void {
-        queueMicrotask(() => {
-        const el = this.chatWindowRef?.nativeElement;
-        if (el) el.scrollTop = el.scrollHeight;
-        });
     }
 }

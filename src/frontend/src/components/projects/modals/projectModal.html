@@ -1,7 +1,9 @@
 <div class="modal-backdrop" *ngIf="state()" (click)="onBackdropClick()">
     <div class="modal-card" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h3>{{ isEdit ? (editingDetails() ? "Edit project" : (editingProject?.name ?? "")) : "New project" }}</h3>
+            <h3>
+                {{ isEdit ? editingDetails() ? "Edit project" : (editingProject?.name ?? "") : "New project" }}
+            </h3>
             <div class="header-actions">
                 <button type="button" class="icon-button delete-btn" *ngIf="isEdit && !editingDetails()" (click)="onDelete()" [disabled]="saving()" aria-label="Delete project">
                     <svg lucideTrash2 [size]="18"></svg>
@@ -38,9 +40,7 @@
                         <svg *ngIf="task.completed" lucideCheck [size]="15"></svg>
                     </button>
                 </div>
-                <p class="empty-state" *ngIf="projectTasks().length === 0">
-                    This project has no tasks yet.
-                </p>
+                <p class="empty-state" *ngIf="projectTasks().length === 0">This project has no tasks yet.</p>
             </div>
 
             <div class="modal-actions">
@@ -52,7 +52,8 @@
         <form *ngIf="!isEdit || editingDetails()" (ngSubmit)="onSubmit()">
             <label class="field">
                 <span>Name</span>
-                <input type="text" [(ngModel)]="name" name="name" required maxlength="120" placeholder="E.g. Website redesign"/>
+                <input type="text" [(ngModel)]="name" name="name" required maxlength="120" placeholder="E.g. Website redesign" [class.invalid]="attemptedSubmit() && !name.trim()"/>
+                <span class="field-error" *ngIf="attemptedSubmit() && !name.trim()"> Name is required. </span>
             </label>
 
             <label class="field">

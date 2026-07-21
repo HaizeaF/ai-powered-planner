@@ -37,6 +37,7 @@ export class TaskModal {
     color = DEFAULT_COLOR;
     projectId: number | null = null;
     saving = signal(false);
+    readonly attemptedSubmit = signal(false);
 
     constructor() {
         effect(() => {
@@ -52,6 +53,7 @@ export class TaskModal {
     }
 
     private resetForm(date: string): void {
+        this.attemptedSubmit.set(false);
         this.title = "";
         this.description = "";
         this.date = date;
@@ -64,6 +66,7 @@ export class TaskModal {
     }
 
     private loadFromTask(task: Task): void {
+        this.attemptedSubmit.set(false);
         const dt = new Date(task.start_datetime);
         this.title = task.title;
         this.description = task.description ?? "";
@@ -109,8 +112,8 @@ export class TaskModal {
         };
     }
 
-
     async onSubmit(): Promise<void> {
+        this.attemptedSubmit.set(true);
         if (!this.title.trim() || !this.date) return;
         this.saving.set(true);
 

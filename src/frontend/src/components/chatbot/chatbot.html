@@ -22,7 +22,9 @@
         <div class="message" *ngFor="let message of messages()" [ngClass]="message.role">
             {{ message.content }}
         </div>
-        <div class="message agent typing" *ngIf="sending()">Typing…</div>
+        <div class="message agent typing" *ngIf="sending()">
+            <span class="typing-text">Typing…</span>
+        </div>
     </div>
 
     <form class="chat-form" (ngSubmit)="send()">

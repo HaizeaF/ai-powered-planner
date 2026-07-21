@@ -15,7 +15,7 @@ export type ProjectModalState = { mode: "create" } | { mode: "edit"; project: Pr
     selector: "app-project-modal",
     imports: [CommonModule, FormsModule, LucideCheck, LucideTrash2, LucideX],
     templateUrl: "./projectModal.html",
-    styleUrl: "./projectModal.css"
+    styleUrl: "./projectModal.css",
 })
 export class ProjectModal {
     private readonly projectService = inject(ProjectService);
@@ -27,6 +27,7 @@ export class ProjectModal {
     readonly colors = COLOR_PALETTE;
     readonly saving = signal(false);
     readonly editingDetails = signal(false);
+    readonly attemptedSubmit = signal(false);
 
     name = "";
     description = "";
@@ -38,9 +39,9 @@ export class ProjectModal {
         if (s?.mode !== "edit") return [];
         const projectId = s.project.id;
         return this.taskService
-        .tasks()
-        .filter((t) => t.project_id === projectId)
-        .sort((a, b) => a.start_datetime.localeCompare(b.start_datetime));
+            .tasks()
+            .filter((t) => t.project_id === projectId)
+            .sort((a, b) => a.start_datetime.localeCompare(b.start_datetime));
     });
 
     readonly completedCount = computed(() => this.projectTasks().filter((t) => t.completed).length);
@@ -48,21 +49,22 @@ export class ProjectModal {
 
     constructor() {
         effect(() => {
-        const s = this.state();
-        if (!s) return;
-        this.editingDetails.set(s.mode === "create");
+            const s = this.state();
+            if (!s) return;
+            this.editingDetails.set(s.mode === "create");
+            this.attemptedSubmit.set(false);
 
-        if (s.mode === "create") {
-            this.name = "";
-            this.description = "";
-            this.endDate = "";
-            this.color = DEFAULT_COLOR;
-        } else {
-            this.name = s.project.name;
-            this.description = s.project.description ?? "";
-            this.endDate = s.project.end_date ?? "";
-            this.color = s.project.color;
-        }
+            if (s.mode === "create") {
+                this.name = "";
+                this.description = "";
+                this.endDate = "";
+                this.color = DEFAULT_COLOR;
+            } else {
+                this.name = s.project.name;
+                this.description = s.project.description ?? "";
+                this.endDate = s.project.end_date ?? "";
+                this.color = s.project.color;
+            }
         });
     }
 
@@ -85,6 +87,7 @@ export class ProjectModal {
     }
 
     async onSubmit(): Promise<void> {
+        this.attemptedSubmit.set(true);
         if (!this.name.trim()) return;
         this.saving.set(true);
 
@@ -92,7 +95,7 @@ export class ProjectModal {
             name: this.name.trim(),
             description: this.description.trim() || null,
             end_date: this.endDate || null,
-            color: this.color
+            color: this.color,
         };
 
         try {
@@ -112,9 +115,10 @@ export class ProjectModal {
     async onDelete(): Promise<void> {
         const s = this.state();
         if (s?.mode !== "edit") return;
-            this.saving.set(true);
+        this.saving.set(true);
         try {
             await this.projectService.delete(s.project.id);
+            await this.taskService.loadAll();
             this.close.emit();
         } finally {
             this.saving.set(false);
@@ -128,7 +132,7 @@ export class ProjectModal {
     onBackdropClick(): void {
         this.close.emit();
     }
-    
+
     isCompletable(task: Task): boolean {
         return this.taskService.isCompletable(task);
     }
