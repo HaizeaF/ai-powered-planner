@@ -1,6 +1,6 @@
 export enum TaskType {
-    TASK = "task",
-    EVENT = "event",
+    TASK = "TASK",
+    EVENT = "EVENT",
 }
 
 export const COLOR_PALETTE: string[] = [

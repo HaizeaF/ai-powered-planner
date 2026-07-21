@@ -81,7 +81,7 @@ export class TaskModal {
     }
 
     get isCompletable(): boolean {
-        return this.projectId != null || this.type === TaskType.TASK;
+        return this.type === TaskType.TASK;
     }
 
     toggleHasTime(): void {

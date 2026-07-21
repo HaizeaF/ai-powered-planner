@@ -48,7 +48,7 @@ export class TaskService {
     }
 
     isCompletable(task: Pick<Task, 'type' | 'project_id'>): boolean {
-        return task.project_id != null || task.type === 'task';
+        return task.type === "TASK";
     }
 
     tasksForDay(tasks: Task[], date: string): Task[] {
