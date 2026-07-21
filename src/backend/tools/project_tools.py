@@ -4,6 +4,7 @@ from datetime import date
 from typing import Optional
 from langchain.tools import tool, ToolRuntime
 from src.backend.schemas.context import Context
+from src.backend.schemas.enums import TaskType
 from src.backend.models.project import ProjectCreate, ProjectUpdate
 from src.backend.services.project_service import ProjectService
 
@@ -70,14 +71,22 @@ async def get_project(project_id: int, runtime: ToolRuntime[Context]) -> str:
         if project is None:
             return f"Project {project_id} not found."
         
-        tasks = "\n".join(f"- [{'x' if task.completed else ' '}] {task.title} ({task.type})" for task in project.tasks)
+        events, tasks = [], []
+        for task in project.tasks:
+            if task.type == TaskType.EVENT:
+                events.append(f"- {task.title} ({task.type})")
+            else:
+                tasks.append(f"- [{'x' if task.completed else ' '}] {task.title} ({task.type})")
+
+        items = "\n".join(events + tasks)
+        logger.info(items)
 
         return (
             f"Name: {project.name}\n"
             f"Description: {project.description or '-'}\n"
             f"End date: {project.end_date.isoformat() if project.end_date else '-'}\n"
             f"Color: {project.color}\n"
-            f"Tasks:\n{tasks or '-'}"
+            f"Tasks:\n{items or '-'}"
         )
 
 @tool
@@ -97,8 +106,9 @@ async def list_projects(runtime: ToolRuntime[Context]) -> str:
 
         lines = []
         for project in projects:
-            completed = sum(1 for task in project.tasks if task.completed)
-            lines.append(f"[{project.id}] {project.name} - {completed}/{len(project.tasks)} tasks completed")
+            tasks = [task for task in project.tasks if task.type == TaskType.TASK];
+            completed = sum(1 for task in tasks if task.completed)
+            lines.append(f"[{project.id}] {project.name} - {completed}/{len(tasks)} tasks completed")
 
         return "\n".join(lines)
 

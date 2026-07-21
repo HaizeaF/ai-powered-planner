@@ -128,4 +128,8 @@ export class ProjectModal {
     onBackdropClick(): void {
         this.close.emit();
     }
+    
+    isCompletable(task: Task): boolean {
+        return this.taskService.isCompletable(task);
+    }
 }

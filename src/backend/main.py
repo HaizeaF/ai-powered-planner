@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
-from src.backend.chatbot.agent import create_answer_agent
+from src.backend.services.graph_service import build_graph
 from src.backend.routes import chat as chat_router
 from src.backend.routes import health as health_router
 from src.backend.routes import projects as projects_router
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with AsyncSqliteSaver.from_conn_string(Config.CHECKPOINT_DB_PATH) as checkpointer:
-        app.state.agent = create_answer_agent(checkpointer)
+        app.state.graph = build_graph(checkpointer)
         yield
 
 app = FastAPI(lifespan=lifespan)

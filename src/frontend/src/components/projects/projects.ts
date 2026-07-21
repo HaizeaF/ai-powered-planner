@@ -4,6 +4,7 @@ import { LucidePlus } from "@lucide/angular";
 import { ProjectService } from "../../services/project";
 import { TaskService } from "../../services/task";
 import { ProjectStats } from "../../models/project";
+import { TaskType } from "../../models/enums";
 
 @Component({
     selector: "app-projects",
@@ -24,7 +25,7 @@ export class Projects {
 
         return projects
         .map((project) => {
-            const projectTasks = tasks.filter((t) => t.project_id === project.id);
+            const projectTasks = tasks.filter((t) => t.project_id === project.id && t.type == TaskType.TASK);
             const completedCount = projectTasks.filter((t) => t.completed).length;
             return { ...project, completedCount, totalCount: projectTasks.length };
         })

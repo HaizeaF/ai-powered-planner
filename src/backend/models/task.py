@@ -10,7 +10,7 @@ class TaskBase(SQLModel):
     """Common fields for a task, shared between creation and reading."""
     title: str
     description: Optional[str] = None
-    start_datetime: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    start_datetime: datetime
     type: str = TaskType.TASK
     is_featured: bool = False
     color: str = ColorType.PURPLE

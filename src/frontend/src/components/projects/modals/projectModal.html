@@ -34,7 +34,7 @@
                             <ng-container *ngIf="task.start_datetime.slice(11, 16) !== '00:00'">· {{ formatTime(task) }}</ng-container>
                         </span>
                     </div>
-                    <button class="task-check" [class.checked]="task.completed" (click)="toggleTaskComplete(task)" aria-label="Mark as complete">
+                    <button *ngIf="isCompletable(task)" class="task-check" [class.checked]="task.completed" (click)="toggleTaskComplete(task)" aria-label="Mark as complete">
                         <svg *ngIf="task.completed" lucideCheck [size]="15"></svg>
                     </button>
                 </div>
