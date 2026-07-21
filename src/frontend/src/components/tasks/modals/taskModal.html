@@ -15,7 +15,10 @@
         <form (ngSubmit)="onSubmit()">
             <label class="field">
                 <span>Title</span>
-                <input type="text" [(ngModel)]="title" name="title" required maxlength="120" placeholder="E.g. Team meeting" />
+                <input type="text" [(ngModel)]="title" name="title" required maxlength="120" placeholder="E.g. Team meeting" [class.invalid]="attemptedSubmit() && !title.trim()"/>
+                <span class="field-error" *ngIf="attemptedSubmit() && !title.trim()">
+                    Title is required.
+                </span>
             </label>
 
             <label class="field">
@@ -26,7 +29,8 @@
             <div class="field-row">
                 <label class="field">
                     <span>Date</span>
-                    <input type="date" [(ngModel)]="date" name="date" required />
+                    <input type="date" [(ngModel)]="date" name="date" required [class.invalid]="attemptedSubmit() && !date"/>
+                    <span class="field-error" *ngIf="attemptedSubmit() && !date">Date is required.</span>
                 </label>
 
                 <label class="field" *ngIf="hasTime">
